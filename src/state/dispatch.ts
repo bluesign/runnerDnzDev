@@ -190,7 +190,7 @@ export const runFileAction = async () => {
             const res = await fcl.send([
                 fcl.args(rawArgs),
                 fcl.script(code),
-                fcl.limit(9999),
+                fcl.limit(99999),
             ])
 
             var result = {}
@@ -210,7 +210,7 @@ export const runFileAction = async () => {
                 args: (arg, t) => rawArgs,
                 proposer: fcl.currentUser,
                 payer: fcl.currentUser,
-                limit: 1000
+                limit: 9999
             })
             console.log(transactionId)
 

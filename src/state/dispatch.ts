@@ -190,6 +190,7 @@ export const runFileAction = async () => {
             const res = await fcl.send([
                 fcl.args(rawArgs),
                 fcl.script(code),
+                fcl.limit(9999),
             ])
 
             var result = {}

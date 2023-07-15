@@ -24,7 +24,7 @@ export class CadenceLanguageServer {
       return;
     }
 
-    const wasm = await fetch("/cadence-language-server.wasm");
+    const wasm = await fetch("https://play.flow.com/cadence-language-server.wasm");
     const go = new Go();
     const module = await WebAssembly.instantiateStreaming(
       wasm,

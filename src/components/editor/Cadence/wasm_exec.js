@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-"use strict";
 
 const enosys = () => {
   const err = new Error("not implemented");
   err.code = "ENOSYS";
   return err;
 };
+
+var globalThis = window
 
 if (!globalThis.fs) {
   let outputBuf = "";
@@ -24,7 +25,7 @@ if (!globalThis.fs) {
     writeSync(fd, buf) {
       outputBuf += decoder.decode(buf);
       const nl = outputBuf.lastIndexOf("\n");
-      if (nl != -1) {
+      if (nl !== -1) {
         console.log(outputBuf.substr(0, nl));
         outputBuf = outputBuf.substr(nl + 1);
       }
@@ -305,7 +306,7 @@ globalThis.Go = class {
           const fd = getInt64(sp + 8);
           const p = getInt64(sp + 16);
           const n = this.mem.getInt32(sp + 24, true);
-          fs.writeSync(fd, new Uint8Array(this._inst.exports.mem.buffer, p, n));
+          globalThis.fs.writeSync(fd, new Uint8Array(this._inst.exports.mem.buffer, p, n));
         },
 
         // func resetMemoryDataView()

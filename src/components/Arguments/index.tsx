@@ -154,7 +154,6 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
                 arguments: [editor?.getModel()?.uri.toString(), fixed],
             });
         } catch (e) {
-            console.log(e);
             return []
         }
 
@@ -194,9 +193,16 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
                 if (result.valid) {
                     const params = await getParameters();
                     // Update state
+                    console.log("update params", params)
                     setExecutionArguments({
                         ...executionArguments,
                         params: params,
+                    });
+                }
+                else{
+                    setExecutionArguments({
+                        ...executionArguments,
+                        params: [],
                     });
                 }
             },
@@ -212,6 +218,7 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
 
     useEffect(() => {
         if (languageClient) {
+            console.log("set listener")
             setupLanguageClientListener();
         }
     }, [languageClient]);
@@ -254,7 +261,7 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
             editorState.jsonArgs = result
 
         })
-    }, [errors, values])
+    }, [errors, values, editorState])
 
 
     if (!list) return null

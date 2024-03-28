@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import {CommandBar, ICommandBarItemProps} from '@fluentui/react/lib/CommandBar';
 import SettingsModal from '~/components/settings/SettingsModal';
 import {getSnippetsMenuItems, SnippetMenuItem} from '~/utils/headerutils';
@@ -12,6 +12,7 @@ import client from "@services/api";
 import { useHistory } from "react-router-dom";
 import {use, set, update, on} from 'use-minimal-state';
 import {runFileAction, saveFileAction} from "~/state/dispatch";
+import {PanelActionProps} from "@components/core/Panel/PanelAction";
 
 /**
  * Uniquie class name for share button to use as popover target.
@@ -27,7 +28,11 @@ const localState = {
     }
 }
 
-export const Header: React.FC = () => {
+interface Props {
+    embed: string
+}
+
+export const Header: React.FC<Props> = ({embed}) => {
 
     const settings = use(appState, "settings")
     const editor = use(appState, "editor")
@@ -89,6 +94,30 @@ export const Header: React.FC = () => {
     }
 
     const menuItems = (): ICommandBarItemProps[] => {
+        if (embed!=="") return [
+
+            {
+                key: 'run',
+                text: 'Run',
+                ariaLabel: 'Run program (Ctrl+Enter)',
+                title: 'Run program (Ctrl+Enter)',
+                iconProps: {iconName: 'Play'},
+                disabled: status.loading,
+                onClick: () => {
+                    runFileAction()
+                }
+            },
+
+            {
+                key: 'download',
+                text: 'Download',
+                iconProps: {iconName: 'Download'},
+                disabled: status.loading,
+                onClick: () => {
+                    saveFileAction(editor.fileName, editor.code)
+                },
+            },
+        ]
         return [
             {
                 key: 'openFile',
@@ -166,6 +195,7 @@ export const Header: React.FC = () => {
     }
 
     const asideItems = (): ICommandBarItemProps[] => {
+        if (embed==="embed") return []
         return [
             {
                 key: 'toggleTheme',
@@ -188,6 +218,10 @@ export const Header: React.FC = () => {
         update(localState,"settings")
     }
 
+    const interactive = embed==="interactive"
+    if (embed!=="" && !interactive) {
+        return <></>
+    }
     return (
         <header
             className='header'
@@ -199,12 +233,14 @@ export const Header: React.FC = () => {
                 className='header__logo'
                 alt='Flow Logo'
             />
+
             <CommandBar
                 className='header__commandBar'
                 items={menuItems()}
                 farItems={asideItems().filter(({hidden}) => !hidden)}
                 ariaLabel='CodeEditor menu'
             />
+
             <SharePopup
                 visible={!!(localSettings.showShareMessage && localSettings.shareCreated && localSettings.snippetID)}
                 target={`.${BTN_SHARE_CLASSNAME}`}
@@ -214,6 +250,7 @@ export const Header: React.FC = () => {
                     update(localState,"settings")
                 }}
             />
+
             <SettingsModal
                 onClose={(args) => onSettingsClose(args)}
                 isOpen={localSettings.showSettings}

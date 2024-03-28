@@ -8,6 +8,7 @@ interface Props {
     commands?: { [key: string]: PanelActionProps },
 }
 
+
 const PanelHeader: React.FC<Props> = ({label, commands}) => {
     const theme = useContext(ThemeContext);
     const {

@@ -24,6 +24,12 @@ const options = [
     icon: <VscBeaker />
   },
   {
+    label: 'Flow Previewnet',
+    description: 'Run scripts and transactions on Flow Previewnet.',
+    type: RuntimeType.FlowPreviewnet,
+    icon: <VscBeaker />
+  },
+  {
     label: 'Local Emulator',
     description: 'Run scripts and transactions on the local Flow Emulator.',
     type: RuntimeType.FlowEmulator,

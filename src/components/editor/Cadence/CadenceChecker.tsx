@@ -3,9 +3,9 @@ import useLanguageServer from "./useLanguageServer";
 
 export const CadenceCheckerContext = createContext<any>(null);
 
-const CadenceChecker = ({ children }) => {
+const CadenceChecker = ({ newCadence, children }) => {
     // Connect project to cadence checker hook
-    const cadenceChecker = useLanguageServer();
+    const cadenceChecker = useLanguageServer(newCadence);
 
     // render
     return (

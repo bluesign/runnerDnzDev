@@ -77,8 +77,6 @@ const ResizablePreview: React.FC = () => {
       size={size}
       enable={enabledCorners}
       onResizeStop={onResize}
-      minHeight={MIN_HEIGHT}
-      minWidth={MIN_WIDTH}
       style={{
         '--pg-handle-active-color': accent,
         '--pg-handle-default-color': buttonBorder,

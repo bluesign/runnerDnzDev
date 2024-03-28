@@ -9,9 +9,9 @@ import {update, use} from "use-minimal-state";
 
 let monacoServicesInstalled = false;
 
-async function startLanguageServer(callbacks, getCode, options) {
+async function startLanguageServer(newCadence, callbacks, getCode, options) {
   const { setLanguageServer, setCallbacks } = options;
-  const server = await CadenceLanguageServer.create(callbacks);
+  const server = await CadenceLanguageServer.create(newCadence, callbacks);
   new Promise(() => {
     let checkInterval = setInterval(() => {
       // .toServer() method is populated by language server
@@ -40,7 +40,7 @@ const launchLanguageClient = async (
   }
 };
 
-export default function useLanguageServer() {
+export default function useLanguageServer(newCadence) {
   let initialCallbacks = {
     // The actual callback will be set as soon as the language server is initialized
     toServer: null,
@@ -101,10 +101,10 @@ export default function useLanguageServer() {
   };
 
 
-  const restartServer = () => {
-    console.log("Restarting server...");
+  const restartServer = (newCadence=false) => {
+    console.log("Restarting server...", newCadence);
 
-    startLanguageServer(callbacks, getCode, {
+    startLanguageServer(newCadence, callbacks, getCode, {
       setLanguageServer,
       setCallbacks,
     }).then();
@@ -121,8 +121,8 @@ export default function useLanguageServer() {
       monacoServicesInstalled = true;
     }
 
-    restartServer();
-  }, []);
+    restartServer(newCadence);
+  }, [newCadence]);
 
   useEffect(() => {
     if (!languageClient && window) {

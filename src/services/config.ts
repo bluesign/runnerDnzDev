@@ -1,6 +1,7 @@
 export enum RuntimeType {
   FlowMainnet     = 'FLOW_MAINNET',
   FlowTestnet     = 'FLOW_TESTNET',
+  FlowPreviewnet  = 'FLOW_PREVIEWNET',
   FlowEmulator    = 'FLOW_EMULATOR'
 }
 
@@ -9,12 +10,13 @@ export namespace RuntimeType {
     if (!t) {
       return;
     }
-
     switch (t) {
       case RuntimeType.FlowMainnet:
         return "Flow Mainnet";
       case RuntimeType.FlowTestnet:
         return "Flow Testnet";
+      case RuntimeType.FlowPreviewnet:
+        return "Flow Previewnet";
       case RuntimeType.FlowEmulator:
         return "Local Emulator";
       default:
@@ -73,7 +75,15 @@ const Config = {
       // "discovery.wallet.method": "POP/RPC",
       "0xFIND": "0x097bafa4e0b48eef",
     },
-
+    "FLOW_PREVIEWNET":{
+      "env": "previewnet",
+      "accessNode.api": "https://rest-previewnet.onflow.org",
+      "discovery.wallet": "https://fcl-discovery.onflow.org/previewnet/authn",
+      "fcl.eventsPollRate": 2500,
+      "discovery.wallet.method": "POP/RPC",
+      "0xFDNZ": "0x30a71a4767f0e14f",
+      "0xFIND": "0x097bafa4e0b48eef",
+    },
     "FLOW_EMULATOR": {
       "env": "emulator",
       "accessNode.api": "http://127.0.0.1:8888",

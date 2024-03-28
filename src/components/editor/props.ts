@@ -4,13 +4,6 @@ import { getFontFamily, getDefaultFontFamily } from '~/services/fonts';
 
 export const LANGUAGE_CADENCE = 'cadence';
 
-export const DEMO_CODE = `
-  // This is the most basic script you can execute on Flow Network
-  
-  pub fun main():Int {
-   return 42
-  }
-`
 
 // stateToOptions converts MonacoState to IEditorOptions
 export const stateToOptions = (state: MonacoSettings): monaco.editor.IEditorOptions => {

@@ -116,6 +116,7 @@ function cadenceValueToDict(payload, brief): any {
 }
 
 export const getTxStatus= async (txId) => {
+
     await fcl.config(config.networkConfig[RuntimeType.FlowMainnet])
     appState.settings.runtime = RuntimeType.FlowMainnet
     update(appState, "settings")
@@ -137,9 +138,10 @@ export const getTxStatus= async (txId) => {
 
     await fcl.config(config.networkConfig[RuntimeType.FlowTestnet])
     appState.settings.runtime = RuntimeType.FlowTestnet
+
     update(appState, "settings")
     try{
-        var res = await fcl.send([fcl.getTransaction(txId)]).then(fcl.decode).then((info)=>{
+        res = await fcl.send([fcl.getTransaction(txId)]).then(fcl.decode).then((info)=>{
             appState.editor.code = dedent(info.script)
             update(appState, "editor")
             return true

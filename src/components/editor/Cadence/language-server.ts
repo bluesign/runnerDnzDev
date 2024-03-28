@@ -18,18 +18,25 @@ export namespace CadenceCheckCompleted {
 }
 export class CadenceLanguageServer {
   static isLoaded = false;
+  static lastSource = ""
 
-  static async load() {
-    if (this.isLoaded) {
+  static async load(wasmSource:string, newCadence) {
+    if (this.isLoaded && this.lastSource===wasmSource) {
       return;
     }
 
-    const wasm = await fetch("https://play.flow.com/cadence-language-server.wasm");
+//"https://play.flow.com/cadence-language-server.wasm"
+    const wasm = await fetch(wasmSource) ;
     const go = new Go();
+
+    console.log("loaded", wasm.status, wasm.ok)
+
     const module = await WebAssembly.instantiateStreaming(
       wasm,
-      go.importObject
+        newCadence?go.importObject:go.importObjectOld
     );
+    console.log("module done")
+
 
     // For each file descriptor, buffer the written content until reaching a newline
 
@@ -67,9 +74,11 @@ export class CadenceLanguageServer {
       return buf.length;
     };
 
+    console.log("running")
     go.run(module.instance);
 
     this.isLoaded = true;
+    this.lastSource=wasmSource
   }
 
   static functionNamePrefix = "CADENCE_LANGUAGE_SERVER";
@@ -82,8 +91,10 @@ export class CadenceLanguageServer {
     return `__${CadenceLanguageServer.functionNamePrefix}_${this.id}_${name}__`;
   }
 
-  static async create(callbacks) {
-    await this.load();
+  static async create(newCadence, callbacks) {
+    let source = newCadence?"https://dnz.dev/cadenceNew.wasm":"https://play.flow.com/cadence-language-server.wasm"
+    console.log(source)
+    await this.load(source, newCadence);
 
     return new CadenceLanguageServer(callbacks);
   }

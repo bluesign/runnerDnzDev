@@ -8,7 +8,7 @@ export enum RuntimeType {
 export namespace RuntimeType {
   export function toString(t?: RuntimeType) {
     if (!t) {
-      return;
+      return "unknown";
     }
     switch (t) {
       case RuntimeType.FlowMainnet:
@@ -20,7 +20,7 @@ export namespace RuntimeType {
       case RuntimeType.FlowEmulator:
         return "Local Emulator";
       default:
-        return RuntimeType[t];
+        return "unknown";
     }
   }
 }
@@ -51,8 +51,11 @@ const Config = {
   networkConfig: {
     "FLOW_TESTNET": {
       "env": "testnet",
+      "flow.network": "testnet",
       "accessNode.api": "https://rest-testnet.onflow.org",
       "discovery.wallet": "https://fcl-discovery.onflow.org/testnet/authn",
+      "discovery.authn.endpoint": "https://fcl-discovery.onflow.org/api/testnet/authn",
+
       "fcl.eventsPollRate": 2500,
       "0xLockedTokens": "0x95e019a17d0e23d7",
       "0xFungibleToken": "0x9a0766d93b6608b7",
@@ -64,8 +67,11 @@ const Config = {
     },
     "FLOW_MAINNET": {
       "env": "mainnet",
+      "flow.network": "mainnet",
       "accessNode.api": "https://rest-mainnet.onflow.org",
       "discovery.wallet": "https://fcl-discovery.onflow.org/authn",
+      "discovery.authn.endpoint": "https://fcl-discovery.onflow.org/api/authn",
+
       "fcl.eventsPollRate": 2500,
       "0xLockedTokens": "0x8d0e87b65159ae63",
       "0xFungibleToken": "0xf233dcee88fe0abe",
@@ -77,8 +83,11 @@ const Config = {
     },
     "FLOW_PREVIEWNET":{
       "env": "previewnet",
+      "flow.network": "previewnet",
       "accessNode.api": "https://rest-previewnet.onflow.org",
       "discovery.wallet": "https://fcl-discovery.onflow.org/previewnet/authn",
+      "discovery.authn.endpoint": "https://fcl-discovery.onflow.org/api/previewnet/authn",
+
       "fcl.eventsPollRate": 2500,
       "discovery.wallet.method": "POP/RPC",
       "0xFDNZ": "0x30a71a4767f0e14f",

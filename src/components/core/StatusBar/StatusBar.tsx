@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {editor, MarkerSeverity} from 'monaco-editor';
 import config, {RuntimeType} from '~/services/config';
 import EllipsisText from '~/components/utils/EllipsisText';
@@ -8,6 +8,7 @@ import './StatusBar.css';
 import * as fcl from "@onflow/fcl";
 import {set, update, use} from "use-minimal-state";
 import {appState} from "~/state";
+import {init} from "@onflow/fcl-wc";
 
 
 const pluralize = (count: number, label: string) => (
@@ -76,10 +77,50 @@ const StatusBar: React.FC = () => {
 
   const {warnings, errors} = getMarkerCounters(status.markers);
   const className = status.loading ? 'StatusBar StatusBar--busy' : 'StatusBar';
+  const [client, setClient] = useState(null);
+  const [lastNetwork, setLastNetwork] = useState("unknown");
 
-  if (settings.runtime) {
+
+
+  const wcSetup = useCallback(async (appTitle: string, iconUrl: string) => {
+
+    try {
+      const DEFAULT_APP_METADATA = {
+        name: appTitle,
+        description: appTitle,
+        url: window.location.origin,
+        icons: [iconUrl]
+      }
+
+      const { FclWcServicePlugin, client } = await init({
+        projectId: '243bb5390e622617f5ae08321eedd0e6', // required
+        metadata: DEFAULT_APP_METADATA, // optional
+        includeBaseWC: true, // optional, default: false
+      })
+      const network: string = RuntimeType.toString(settings.runtime)
+      setLastNetwork(network)
+      setClient(client)
+      fcl.pluginRegistry.add(FclWcServicePlugin)
+
+    } catch (e) {
+      throw e
+    }
+  }, [settings])
+
+  useEffect(() => {
+    if (!settings.runtime) return
+    const network: string = RuntimeType.toString(settings.runtime)
+    if (network == lastNetwork) return
+
     fcl.config(config.networkConfig[settings.runtime])
-  }
+    if (!client || settings.runtime != lastNetwork) {
+      wcSetup("run.dnz.dev", "")
+    }
+  }, [settings]);
+
+
+
+
   return (
     <>
       <div className={className}>

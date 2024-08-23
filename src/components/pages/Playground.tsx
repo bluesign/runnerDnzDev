@@ -145,7 +145,7 @@ export const Playground = ({panelProps, dispatch}) => {
                  <div className={`Layout Layout--${UI.panel.layout}`}>
 
                     <FlexContainer>
-                        <CadenceChecker newCadence={settings.runtime === RuntimeType.FlowPreviewnet}>
+                        <CadenceChecker newCadence={settings.runtime === RuntimeType.FlowPreviewnet || settings.runtime === RuntimeType.FlowTestnet || settings.runtime === RuntimeType.FlowEmulator  }>
                             <CodeEditor/>
                         </CadenceChecker>
                     </FlexContainer>

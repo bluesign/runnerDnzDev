@@ -25,7 +25,6 @@ export class CadenceLanguageServer {
       return;
     }
 
-//"https://play.flow.com/cadence-language-server.wasm"
     const wasm = await fetch(wasmSource) ;
     const go = new Go();
 
@@ -33,7 +32,7 @@ export class CadenceLanguageServer {
 
     const module = await WebAssembly.instantiateStreaming(
       wasm,
-        newCadence?go.importObject:go.importObjectOld
+        go.importObject
     );
     console.log("module done")
 
@@ -92,7 +91,7 @@ export class CadenceLanguageServer {
   }
 
   static async create(newCadence, callbacks) {
-    let source = newCadence?"https://dnz.dev/cadenceNew.wasm":"https://play.flow.com/cadence-language-server.wasm"
+    let source = newCadence?"https://dnz.dev/cadenceNew.wasm":"https://dnz.dev/cadence-language-server.wasm"
     console.log(source)
     await this.load(source, newCadence);
 

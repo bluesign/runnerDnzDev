@@ -9,7 +9,7 @@ import {appState, getInitialThemeVariant} from "~/state";
 import {getThemeFromVariant} from "~/utils/theme";
 import {IPartialTheme} from "@fluentui/react";
 import client from "@services/api";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {use, set, update, on} from 'use-minimal-state';
 import {runFileAction, saveFileAction} from "~/state/dispatch";
 import {PanelActionProps} from "@components/core/Panel/PanelAction";
@@ -52,7 +52,7 @@ export const Header: React.FC<Props> = ({embed}) => {
         setTheme(getThemeFromVariant(getInitialThemeVariant(settings.darkMode, settings.useSystemTheme)))
     }, [settings.darkMode, settings.useSystemTheme])
 
-    const history = useHistory()
+    const history = useNavigate()
 
     const onItemSelect = () => {
         const file = fileInput?.files?.item(0);
@@ -85,7 +85,7 @@ export const Header: React.FC<Props> = ({embed}) => {
 
     const onSnippetMenuItemClick = (item: SnippetMenuItem) => {
         if (item.snippet) {
-            history.replace(`/snippet/${item.snippet}`)
+            history(`/snippet/${item.snippet}`)
             return
         }
         editor.code = item.text as string;
@@ -156,7 +156,7 @@ export const Header: React.FC<Props> = ({embed}) => {
                     client.shareSnippet(editor.code, settings.runtime).then(
                         ({snippetID})  => {
                             if (snippetID){
-                                history.push(`/snippet/${snippetID}`)
+                                history(`/snippet/${snippetID}`)
                                 localSettings.shareCreated = true
                                 localSettings.snippetID = snippetID
                                 update(localState,"settings")

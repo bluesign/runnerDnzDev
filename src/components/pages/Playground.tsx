@@ -20,7 +20,7 @@ import {getTxStatus} from "~/state/dispatch";
 import {LayoutType} from "~/styles/modal";
 
 
-export const Playground = ({panelProps, dispatch}) => {
+export const Playground : React.FC = (panelProps, dispatch) => {
     const {snippetID, transactionID} = useParams();
     const location = useLocation()
     const params = new URLSearchParams(location.search)
@@ -37,11 +37,12 @@ export const Playground = ({panelProps, dispatch}) => {
 
     },[transactionID])
 
-    const embed = params.get("embed") ??""
+    const embed = params.get("embed") ?? ""
 
     useEffect(()=>{
         UI.panel.layout = LayoutType.Vertical
         UI.panel.height = 250
+        UI.panel.width = 250
 
         if (params.get("filename")!==""){
             editor.fileName = params.get("filename")!
@@ -78,13 +79,13 @@ export const Playground = ({panelProps, dispatch}) => {
 
         if (params.get("output")==="vertical"){
             UI.panel.layout = LayoutType.Vertical
-            if (params.get("outputSize")!=="") {
+            if (params.get("outputSize")!=="" && params.get("outputSize")!==null){
                 UI.panel.height = parseInt(params.get("outputSize")!)
             }
         }
-        if (params.get("output")==="horizontal"){
+        if (params.get("output")==="horizontal" ){
             UI.panel.layout = LayoutType.Horizontal
-            if (params.get("outputSize")!=="") {
+            if (params.get("outputSize")!=="" && params.get("outputSize")!==null) {
                 UI.panel.width = parseInt(params.get("outputSize")!)
             }
         }
@@ -101,7 +102,7 @@ export const Playground = ({panelProps, dispatch}) => {
         update(appState, "settings")
         update(appState, "editor")
         update(appState, "UI")
-
+        console.log(UI.panel)
         if (!snippetID)
             return
 

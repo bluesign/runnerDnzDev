@@ -47,10 +47,19 @@ const ResizablePreview: React.FC = () => {
     }
   }, [UI.panel]);
 
+  if (!UI.panel.height){
+    UI.panel.height = 0
+  }
+
+  if (!UI.panel.width){
+    UI.panel.width = 0
+  }
+
   const size = {
     height:  UI.panel.layout === LayoutType.Vertical ? UI.panel.height : '100%',
     width:  UI.panel.layout === LayoutType.Horizontal ? UI.panel.width : '100%'
   };
+
 
   const enabledCorners = {
     top: !UI.panel.collapsed &&  UI.panel.layout === LayoutType.Vertical,
@@ -64,6 +73,7 @@ const ResizablePreview: React.FC = () => {
   };
 
   const isCollapsed = UI.panel.collapsed && UI.panel.layout === LayoutType.Vertical;
+  console.log(size)
   return (
     <Resizable
       className={

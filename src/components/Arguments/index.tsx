@@ -8,7 +8,6 @@ import {useTheme} from "@fluentui/react";
 import {getContentStyles} from "~/styles/modal";
 import PanelHeader from "@components/core/Panel/PanelHeader";
 import {VscChevronDown, VscChevronUp} from "react-icons/vsc";
-import {motion} from "framer-motion"
 import {DragBox, DragMe} from "@components/Arguments/styles";
 import {use} from "use-minimal-state";
 import {appState} from "~/state";
@@ -273,7 +272,6 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
         <DragBox ref={constraintsRef}/>
 
         <DragMe>
-            <motion.div drag={true} dragConstraints={constraintsRef}  dragElastic={false}>
                 <div
                     className={contentStyles.container}
 
@@ -309,7 +307,7 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
                     }
 
                 </div>
-            </motion.div>
+
         </DragMe>
     </>
     )

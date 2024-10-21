@@ -81,7 +81,7 @@ const StatusBar: React.FC = () => {
   const [lastNetwork, setLastNetwork] = useState("unknown");
 
 
-
+/*
   const wcSetup = useCallback(async (appTitle: string, iconUrl: string) => {
 
     try {
@@ -106,18 +106,17 @@ const StatusBar: React.FC = () => {
       throw e
     }
   }, [settings])
-
+*/
   useEffect(() => {
     if (!settings.runtime) return
     const network: string = RuntimeType.toString(settings.runtime)
-    if (network == lastNetwork) return
+    if (network === lastNetwork) return
 
     fcl.config(config.networkConfig[settings.runtime])
-    if (!client || settings.runtime != lastNetwork) {
-      wcSetup("run.dnz.dev", "")
-    }
+    //if (!client || settings.runtime != lastNetwork) {
+    //  wcSetup("run.dnz.dev", "")
+    //}
   }, [settings]);
-
 
 
 

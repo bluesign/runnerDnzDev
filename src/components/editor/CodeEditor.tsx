@@ -55,7 +55,7 @@ export const CodeEditor: React.FC<PreviewProps> = ()=>{
     // Register custom actions
     actions.forEach(action => editorInstance.addAction(action));
     attachCustomCommands(editorInstance);
-    editorInstance.focus();
+    //editorInstance.focus();
   }
 
   const doAnalyze = () => {
@@ -90,8 +90,7 @@ export const CodeEditor: React.FC<PreviewProps> = ()=>{
         options={options}
         onChange={(newVal, e) => onChange(newVal, e)}
         editorDidMount={(e, m: any) => editorDidMount(e, m)}
-      >
-      </MonacoEditor>
+      />
 
   {editorInstance && <Arguments editor={editorInstance}/>}
 

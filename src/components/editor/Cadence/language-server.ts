@@ -6,7 +6,8 @@
 
 // Callbacks defines the functions that the language server calls
 // and that need to be implemented by the client.
-import Go from "./wasm_exec";
+// @ts-ignore
+import {go} from "./wasm_exec";
 import { DocumentUri } from 'monaco-languageclient';
 
 export namespace CadenceCheckCompleted {
@@ -26,10 +27,9 @@ export class CadenceLanguageServer {
     }
 
     const wasm = await fetch(wasmSource) ;
-    const go = new Go();
 
     console.log("loaded", wasm.status, wasm.ok)
-
+    console.log(go.importObject)
     const module = await WebAssembly.instantiateStreaming(
       wasm,
         go.importObject
@@ -91,8 +91,7 @@ export class CadenceLanguageServer {
   }
 
   static async create(newCadence, callbacks) {
-    let source = newCadence?"https://dnz.dev/cadenceNew.wasm":"https://dnz.dev/cadence-language-server.wasm"
-    console.log(source)
+    let source = "https://cdn.dnz.dev/cadenceNew2.wasm"
     await this.load(source, newCadence);
 
     return new CadenceLanguageServer(callbacks);

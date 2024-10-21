@@ -18,6 +18,10 @@ export const snippets = {
     {
       "label": "Send Flow Token",
       "snippet": "dd08688cd0aefe47"
+    },
+    {
+      "label": "Send Flow Token (Cadence 1.0)",
+      "snippet": "755aaaa49fb2048c"
     }
   ]
 }

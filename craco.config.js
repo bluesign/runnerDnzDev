@@ -27,8 +27,7 @@ module.exports = {
 
       alias:
               {
-                  'vscode': require.resolve('monaco-languageclient/lib/vscode-compatibility'
-                  )
+                  'vscode': require.resolve('monaco-languageclient/lib/vscode-compatibility')
               }
 
   },

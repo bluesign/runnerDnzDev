@@ -1,7 +1,6 @@
 import React, {CSSProperties, MouseEventHandler} from 'react';
 import { FontIcon } from '@fluentui/react/lib/Icon';
 import clsx from 'clsx';
-import './StatusBarItem.css';
 
 export interface StatusBarItemProps {
   icon?: string | React.ComponentType,
@@ -16,6 +15,7 @@ export interface StatusBarItemProps {
   title?: string
   onClick?: MouseEventHandler<HTMLButtonElement|HTMLAnchorElement>
   style?: CSSProperties
+  children?: React.ReactNode
 }
 
 const getIcon = (icon: string | React.ComponentType) => (

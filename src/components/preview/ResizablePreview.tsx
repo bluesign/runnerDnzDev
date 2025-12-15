@@ -11,7 +11,6 @@ import {
 
 import Preview from './Preview';
 import PanelHeader from '~/components/core/Panel/PanelHeader';
-import './ResizablePreview.css';
 import {LayoutType} from "~/styles/modal";
 import {appState} from "~/state";
 import {update, use} from "use-minimal-state";

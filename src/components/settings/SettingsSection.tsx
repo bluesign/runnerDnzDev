@@ -3,7 +3,7 @@ import { settingsSectionStyles } from './styles'
 
 interface SettingsSectionProps {
   title: string
-  children: JSX.Element | JSX.Element[]
+  children: React.ReactNode
 }
 
 export default function SettingsSection(props: SettingsSectionProps) {

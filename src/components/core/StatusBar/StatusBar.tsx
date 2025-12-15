@@ -4,7 +4,6 @@ import config, {RuntimeType} from '~/services/config';
 import EllipsisText from '~/components/utils/EllipsisText';
 import StatusBarItem from '~/components/core/StatusBar/StatusBarItem';
 import EnvironmentSelectModal from '~/components/modals/EnvironmentSelectModal';
-import './StatusBar.css';
 import * as fcl from "@onflow/fcl";
 import {set, update, use} from "use-minimal-state";
 import {appState} from "~/state";

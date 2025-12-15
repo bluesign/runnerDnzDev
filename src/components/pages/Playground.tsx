@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {useParams,useLocation} from 'react-router-dom';
+import { useRouter } from 'next/router';
 
 import {Header} from '~/components/core/Header';
 import CodeEditor from '~/components/editor/CodeEditor';
@@ -7,7 +7,6 @@ import FlexContainer from '~/components/editor/FlexContainer';
 import ResizablePreview from '~/components/preview/ResizablePreview';
 import StatusBar from '~/components/core/StatusBar';
 
-import './Playground.css';
 import CadenceChecker from "@components/editor/Cadence/CadenceChecker";
 import {ThemeProvider} from "@fluentui/react/lib/Theme";
 import {appState, getInitialThemeVariant} from "~/state";
@@ -20,10 +19,12 @@ import {getTxStatus} from "~/state/dispatch";
 import {LayoutType} from "~/styles/modal";
 
 
-export const Playground : React.FC = (panelProps, dispatch) => {
-    const {snippetID, transactionID} = useParams();
-    const location = useLocation()
-    const params = new URLSearchParams(location.search)
+export const Playground : React.FC = () => {
+    const router = useRouter();
+    const { snippetID: snippetIDParam, transactionID: transactionIDParam } = router.query;
+    const snippetID = typeof snippetIDParam === 'string' ? snippetIDParam : undefined;
+    const transactionID = typeof transactionIDParam === 'string' ? transactionIDParam : undefined;
+    const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
     const settings = use(appState, "settings")
     const UI = use(appState, "UI")
     const editor = use(appState, "editor")
@@ -151,9 +152,7 @@ export const Playground : React.FC = (panelProps, dispatch) => {
                         </CadenceChecker>
                     </FlexContainer>
 
-                    <ResizablePreview
-                        {...panelProps}
-                    />
+                    <ResizablePreview />
 
                 </div>
                 <StatusBar/>

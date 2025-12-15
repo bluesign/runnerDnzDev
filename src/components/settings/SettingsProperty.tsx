@@ -4,7 +4,7 @@ import React from 'react';
 interface SettingsSectionProps {
   title: string
   description?: string
-  control: JSX.Element
+  control: React.ReactElement
 }
 
 export default function SettingsProperty(props: SettingsSectionProps) {

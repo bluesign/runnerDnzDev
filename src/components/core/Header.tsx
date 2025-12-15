@@ -4,12 +4,11 @@ import SettingsModal from '~/components/settings/SettingsModal';
 import {getSnippetsMenuItems, SnippetMenuItem} from '~/utils/headerutils';
 import SharePopup from '~/components/utils/SharePopup';
 
-import './Header.css';
 import {appState, getInitialThemeVariant} from "~/state";
 import {getThemeFromVariant} from "~/utils/theme";
 import {IPartialTheme} from "@fluentui/react";
 import client from "@services/api";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from 'next/router';
 import {use, set, update, on} from 'use-minimal-state';
 import {runFileAction, saveFileAction} from "~/state/dispatch";
 import {PanelActionProps} from "@components/core/Panel/PanelAction";
@@ -52,7 +51,7 @@ export const Header: React.FC<Props> = ({embed}) => {
         setTheme(getThemeFromVariant(getInitialThemeVariant(settings.darkMode, settings.useSystemTheme)))
     }, [settings.darkMode, settings.useSystemTheme])
 
-    const history = useNavigate()
+    const router = useRouter()
 
     const onItemSelect = () => {
         const file = fileInput?.files?.item(0);
@@ -85,7 +84,7 @@ export const Header: React.FC<Props> = ({embed}) => {
 
     const onSnippetMenuItemClick = (item: SnippetMenuItem) => {
         if (item.snippet) {
-            history(`/snippet/${item.snippet}`)
+            router.push(`/snippet/${item.snippet}`)
             return
         }
         editor.code = item.text as string;
@@ -156,7 +155,7 @@ export const Header: React.FC<Props> = ({embed}) => {
                     client.shareSnippet(editor.code, settings.runtime).then(
                         ({snippetID})  => {
                             if (snippetID){
-                                history(`/snippet/${snippetID}`)
+                                router.push(`/snippet/${snippetID}`)
                                 localSettings.shareCreated = true
                                 localSettings.snippetID = snippetID
                                 update(localState,"settings")

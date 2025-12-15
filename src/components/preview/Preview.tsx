@@ -4,7 +4,6 @@ import { getDefaultFontFamily } from '~/services/fonts';
 import { RuntimeType } from '~/services/config';
 import { EvalEvent } from '~/services/api';
 import EvalEventView from './EvalEventView';
-import './Preview.css';
 import "../../state"
 import {appState} from "~/state";
 import {use} from "use-minimal-state";

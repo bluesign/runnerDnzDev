@@ -8,7 +8,6 @@ import { VscCloud, VscBeaker } from 'react-icons/vsc';
 import { SiWebassembly } from 'react-icons/si';
 import { getContentStyles, getIconButtonStyles } from '~/styles/modal';
 import {RuntimeType} from '~/services/config';
-import './EnvironmentSelectModal.css';
 
 const options = [
   {

@@ -1,6 +1,5 @@
 import React  from 'react';
-import { Link } from 'react-router-dom';
-import './NotFoundPage.css';
+import Link from 'next/link';
 
 const NotFoundPage: React.FC = () => {
   return (
@@ -19,7 +18,7 @@ const NotFoundPage: React.FC = () => {
           </div>
           <div className="errorPage__actions">
 
-            <Link to="/" className="btn--primary">Go To Home</Link>
+            <Link href="/" className="btn--primary">Go To Home</Link>
           </div>
         </div>
 

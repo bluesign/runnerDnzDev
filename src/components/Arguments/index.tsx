@@ -255,7 +255,7 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
     }, [list, values]);
 
     useEffect(() => {
-        if (errors === {}) return
+        if (Object.keys(errors).length === 0) return
         parseParameters().then((result) => {
             editorState.jsonArgs = result
 

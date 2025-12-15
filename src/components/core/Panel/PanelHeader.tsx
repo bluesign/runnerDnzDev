@@ -1,7 +1,6 @@
 import React, {useContext} from 'react';
 import {ITheme, ThemeContext} from '@fluentui/react';
 import PanelAction, {PanelActionProps} from '@components/core/Panel/PanelAction';
-import './PanelHeader.css';
 
 interface Props {
     label: string

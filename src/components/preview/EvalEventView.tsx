@@ -1,5 +1,4 @@
 import React from 'react';
-import './EvalEventView.css';
 import ReactJson from 'react-json-view'
 import {appState} from "~/state";
 import {use} from "use-minimal-state";

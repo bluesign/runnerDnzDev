@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@craco/craco": "^7.1.0",
     "@fluentui/react": "^8.120.6",
     "@onflow/fcl": "^1.11.0",
+    "@types/jest": "^27.4.0",
     "axios": "^1.7.5",
     "circular-dependency-plugin": "^5.2.2",
     "clsx": "^2.1.1",
     "copy-to-clipboard": "^3.3.3",
-    "craco-alias": "^3.0.1",
+    "core-js": "^3.47.0",
     "dedent": "^1.5.3",
     "file-saver": "^2.0.5",
     "globalthis": "^1.0.4",
@@ -18,36 +18,26 @@
     "monaco-editor": "^0.50.0",
     "monaco-editor-webpack-plugin": "^7.1.0",
     "monaco-languageclient": "^0.18.1",
+    "next": "^14.2.35",
     "re-resizable": "^6.9.17",
-    "react-dom": "^16.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-icons": "^5.3.0",
     "react-json-view": "^1.21.3",
     "react-monaco-editor": "^0.56.1",
-    "react-router-dom": "^6.26.1",
     "react-split-pane": "^0.1.92",
     "styled-components": "^6.1.12",
     "use-minimal-state": "^3.5.0",
     "util": "^0.12.5",
     "uuid": "^10.0.0",
-    "vscode-jsonrpc": "^6.0.0",
-
-    "@types/jest": "^27.4.0",
-    "@types/react": "^17.0.39",
-    "@types/react-dom": "^17.0.11"
+    "vscode-jsonrpc": "^6.0.0"
   },
   "scripts": {
-    "start": "GENERATE_SOURCEMAP=true craco start",
-    "build": "GENERATE_SOURCEMAP=false craco build",
-    "test": "craco test",
-    "eject": "craco eject",
-    "lint": "npx eslint .",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
     "gen:suggestions": "node ./src/editor/internal/genpkgcache.js"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
@@ -62,7 +52,9 @@
     ]
   },
   "devDependencies": {
-    "@types/node": "^17.0.16",
+    "@types/node": "^17.0.45",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
     "eslint": "^8.8.0",
     "eslint-config-react-app": "^7.0.0",
     "eslint-plugin-flowtype": "^8.0.3",
@@ -72,6 +64,7 @@
     "eslint-plugin-react": "^7.27.1",
     "eslint-plugin-react-hooks": "^4.3.0",
     "eslint-plugin-testing-library": "^5.0.1",
-    "http-proxy-middleware": "^2.0.6"
+    "http-proxy-middleware": "^2.0.6",
+    "typescript": "^5.9.3"
   }
 }

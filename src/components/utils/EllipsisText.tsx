@@ -1,7 +1,8 @@
 import React from 'react';
-import './EllipsisText.css';
 
-interface Props {}
+interface Props {
+  children?: React.ReactNode;
+}
 
 const EllipsisText: React.FC<Props> = ({children, ...props}) => (
   <span className="EllipsisText" {...props}>

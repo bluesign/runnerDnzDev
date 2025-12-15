@@ -1,6 +1,5 @@
 import React from 'react';
 import clsx from 'clsx';
-import './PanelAction.css';
 
 export interface PanelActionProps {
     hidden?: boolean

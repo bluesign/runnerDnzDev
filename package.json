@@ -39,12 +39,6 @@
     "lint": "next lint",
     "gen:suggestions": "node ./src/editor/internal/genpkgcache.js"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",

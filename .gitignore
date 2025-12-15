@@ -105,3 +105,8 @@ dist
 build/
 .idea/
 cache/
+
+# Playwright test artifacts
+test-results/
+playwright-report/
+playwright/.cache/

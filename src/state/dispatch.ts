@@ -5,6 +5,7 @@ import config, {RuntimeType} from '@services/config';
 import {appState} from "~/state/index";
 import {update} from "use-minimal-state";
 import dedent from "dedent"
+import {cadenceValueToDict} from '@utils/cadenceValueConverter';
 
 export const saveFileAction = async (fileName, code) => {
     try {
@@ -14,106 +15,6 @@ export const saveFileAction = async (fileName, code) => {
         alert(`Failed to save a file: ${err}`)
     }
 };
-
-
-function cadenceValueToDict(payload, brief): any {
-    if (!payload) return null
-
-    if (payload["type"] === "Array") {
-        return cadenceValueToDict(payload["value"], brief)
-    }
-
-    if (payload["type"] === "Dictionary") {
-        var resDict = {}
-        payload["value"].forEach(element => {
-
-            var skey = cadenceValueToDict(element["key"], brief)
-
-            if (brief && skey) {
-                if (skey.toString().indexOf("A.") === 0) {
-                    skey = skey.toString().split(".").slice(2).join(".")
-                }
-                resDict[skey] = cadenceValueToDict(element["value"], brief)
-
-            } else {
-                resDict[cadenceValueToDict(element["key"], brief)] = cadenceValueToDict(element["value"], brief)
-            }
-        });
-        return resDict
-    }
-
-    if (payload["kind"] === "Reference") {
-        return "&" + payload["type"]["typeID"]
-    }
-
-
-    if (payload["type"] === "Optional") {
-        return cadenceValueToDict(payload["value"], brief)
-    }
-    if (payload["type"] === "Type") {
-        return cadenceValueToDict(payload["value"]["staticType"], brief)
-    }
-
-    if (payload["type"] === "Address") {
-        return payload["value"]
-    }
-
-
-    if (payload["kind"] && payload["kind"] === "Capability") {
-        return payload["type"]["type"]["typeID"]
-    }
-    if (payload["type"] === "Capability") {
-        var res = {}
-        res["address"] = payload["value"]["address"]
-        res["path"] = cadenceValueToDict(payload["value"]["path"], brief)
-        res["borrowType"] = cadenceValueToDict(payload["value"]["borrowType"], brief)
-        return {"<Capability>": res}
-    }
-
-    if (payload["type"] === "Path") {
-        return payload["value"]["domain"] + "/" + payload["value"]["identifier"]
-    }
-
-    if (payload["type"] === "UInt64") {
-        return payload["value"]
-    }
-
-    if (payload["type"] && payload["type"].indexOf("Int") > -1) {
-        return parseInt(payload["value"])
-    }
-
-    if (Array.isArray(payload)) {
-        var resArray: [any?] = []
-        for (const i in payload) {
-            var d = cadenceValueToDict(payload[i], brief)
-            resArray.push(d)
-        }
-        return resArray
-    }
-
-
-    if (payload["type"] === "Struct" || payload["type"] === "Resource") {
-        return cadenceValueToDict(payload["value"], brief)
-    }
-
-    if (payload["id"] != null && (payload["id"].indexOf("A.") === 0 || payload["id"].indexOf("s.") === 0)) {
-
-        res = {}
-        for (const f in payload["fields"]) {
-            res[payload["fields"][f]["name"]] = cadenceValueToDict(payload["fields"][f]["value"], brief)
-        }
-        var res2 = {}
-        if (brief) {
-            res2[payload["id"].split(".").slice(2).join(".")] = res
-        } else {
-            res2[payload["id"]] = res
-        }
-        return res2
-    }
-
-    return payload["value"]
-
-}
 
 export const getTxStatus= async (txId) => {
 

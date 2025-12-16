@@ -843,8 +843,9 @@ describe('cadenceValueToDict', () => {
       // Check nested PublicKey struct
       expect(accountKey.publicKey).toHaveProperty('PublicKey');
       const publicKey = accountKey.publicKey['PublicKey'];
-      expect(Array.isArray(publicKey.publicKey)).toBe(true);
-      expect(publicKey.publicKey).toEqual([125, 199, 40]);
+      // UInt8 arrays are now converted to hex strings with field name notation
+      expect(publicKey['publicKey [UInt8]']).toBeDefined();
+      expect(publicKey['publicKey [UInt8]']).toBe('7dc728');
       expect(publicKey.signatureAlgorithm).toBe(1);
     });
 
@@ -891,6 +892,142 @@ describe('cadenceValueToDict', () => {
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBe(1);
       expect(result[0]).toHaveProperty('AccountKey');
+    });
+  });
+
+  describe('UInt8 array to hex conversion', () => {
+    test('should convert array of UInt8 to hex string', () => {
+      const input = {
+        type: 'Array',
+        value: [
+          { type: 'UInt8', value: '0' },
+          { type: 'UInt8', value: '17' },
+          { type: 'UInt8', value: '255' },
+          { type: 'UInt8', value: '170' },
+          { type: 'UInt8', value: '187' },
+          { type: 'UInt8', value: '204' }
+        ]
+      };
+      
+      expect(cadenceValueToDict(input, false)).toBe('0011ffaabbcc');
+    });
+
+    test('should handle single byte UInt8 array', () => {
+      const input = {
+        type: 'Array',
+        value: [
+          { type: 'UInt8', value: '125' }
+        ]
+      };
+      
+      expect(cadenceValueToDict(input, false)).toBe('7d');
+    });
+
+    test('should add [UInt8] notation to field name in composite types', () => {
+      const input = {
+        id: 'PublicKey',
+        fields: [
+          {
+            name: 'publicKey',
+            value: {
+              type: 'Array',
+              value: [
+                { type: 'UInt8', value: '125' },
+                { type: 'UInt8', value: '199' },
+                { type: 'UInt8', value: '40' }
+              ]
+            }
+          },
+          {
+            name: 'signatureAlgorithm',
+            value: { type: 'UInt8', value: '1' }
+          }
+        ]
+      };
+      
+      const result = cadenceValueToDict(input, false);
+      
+      expect(result).toHaveProperty('PublicKey');
+      const publicKey = result['PublicKey'];
+      expect(publicKey['publicKey [UInt8]']).toBeDefined();
+      expect(publicKey['publicKey [UInt8]']).toBe('7dc728');
+      expect(publicKey).toHaveProperty('signatureAlgorithm');
+      expect(publicKey['signatureAlgorithm']).toBe(1);
+    });
+
+    test('should handle nested structures with UInt8 arrays', () => {
+      const input = {
+        id: 'AccountKey',
+        fields: [
+          {
+            name: 'publicKey',
+            value: {
+              id: 'PublicKey',
+              fields: [
+                {
+                  name: 'publicKey',
+                  value: {
+                    type: 'Array',
+                    value: [
+                      { type: 'UInt8', value: '125' },
+                      { type: 'UInt8', value: '199' }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      };
+      
+      const result = cadenceValueToDict(input, false);
+      
+      expect(result).toHaveProperty('AccountKey');
+      const accountKey = result['AccountKey'];
+      expect(accountKey).toHaveProperty('publicKey');
+      expect(accountKey.publicKey).toHaveProperty('PublicKey');
+      const nestedPublicKey = accountKey.publicKey['PublicKey'];
+      expect(nestedPublicKey['publicKey [UInt8]']).toBeDefined();
+      expect(nestedPublicKey['publicKey [UInt8]']).toBe('7dc7');
+    });
+
+    test('should not convert non-UInt8 arrays to hex', () => {
+      const input = {
+        type: 'Array',
+        value: [
+          { type: 'Int', value: '1' },
+          { type: 'Int', value: '2' },
+          { type: 'Int', value: '3' }
+        ]
+      };
+      
+      expect(cadenceValueToDict(input, false)).toEqual([1, 2, 3]);
+    });
+
+    test('should not add notation for non-UInt8 array fields', () => {
+      const input = {
+        id: 'MyStruct',
+        fields: [
+          {
+            name: 'numbers',
+            value: {
+              type: 'Array',
+              value: [
+                { type: 'Int', value: '1' },
+                { type: 'Int', value: '2' }
+              ]
+            }
+          }
+        ]
+      };
+      
+      const result = cadenceValueToDict(input, false);
+      
+      expect(result).toHaveProperty('MyStruct');
+      const myStruct = result['MyStruct'];
+      expect(myStruct).toHaveProperty('numbers');
+      expect(myStruct).not.toHaveProperty('numbers [UInt8]');
+      expect(myStruct['numbers']).toEqual([1, 2]);
     });
   });
 });

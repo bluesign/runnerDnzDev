@@ -1,4 +1,27 @@
 /**
+ * Checks if a value is an array of UInt8 values
+ */
+function isUInt8Array(value: any): boolean {
+    if (!Array.isArray(value) || value.length === 0) {
+        return false;
+    }
+    // Check if all elements are UInt8
+    return value.every((item: any) => 
+        item && item["type"] === "UInt8" && item["value"] !== undefined
+    );
+}
+
+/**
+ * Converts an array of UInt8 values to a hexadecimal string
+ */
+function uint8ArrayToHex(value: any[]): string {
+    return value.map((item: any) => {
+        const num = parseInt(item["value"]);
+        return num.toString(16).padStart(2, '0');
+    }).join('');
+}
+
+/**
  * Converts Cadence JSON values to JavaScript dictionaries/objects
  * Based on the Cadence JSON specification: https://cadence-lang.org/docs/json-cadence-spec
  * 
@@ -11,7 +34,12 @@ export function cadenceValueToDict(payload: any, brief: boolean = false): any {
 
     // Handle array type
     if (payload["type"] === "Array") {
-        return cadenceValueToDict(payload["value"], brief);
+        const arrayValue = payload["value"];
+        // Special handling for UInt8 arrays - convert to hex string
+        if (isUInt8Array(arrayValue)) {
+            return uint8ArrayToHex(arrayValue);
+        }
+        return cadenceValueToDict(arrayValue, brief);
     }
 
     // Handle JavaScript arrays (when value is already an array)
@@ -167,7 +195,17 @@ export function cadenceValueToDict(payload: any, brief: boolean = false): any {
     if (payload["id"] != null && payload["fields"] != null) {
         const res: Record<string, any> = {};
         for (const f in payload["fields"]) {
-            res[payload["fields"][f]["name"]] = cadenceValueToDict(payload["fields"][f]["value"], brief);
+            const field = payload["fields"][f];
+            const fieldName = field["name"];
+            const fieldValue = field["value"];
+            
+            // Check if this field is a UInt8 array to add notation to the name
+            let displayName = fieldName;
+            if (fieldValue && fieldValue["type"] === "Array" && isUInt8Array(fieldValue["value"])) {
+                displayName = `${fieldName} [UInt8]`;
+            }
+            
+            res[displayName] = cadenceValueToDict(fieldValue, brief);
         }
         
         const res2: Record<string, any> = {};

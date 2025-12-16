@@ -40,6 +40,7 @@ The function supports all types defined in the Cadence JSON specification:
 
 ### Complex Types
 - **Array**: Converts to JavaScript array
+  - **Special case**: Arrays of `UInt8` values are automatically converted to hexadecimal strings for compact representation
 - **Dictionary**: Converts to JavaScript object
 - **Optional**: Unwraps the optional value (or returns null if empty)
 - **Type**: Extracts the static type
@@ -59,6 +60,12 @@ The function supports all types defined in the Cadence JSON specification:
 - A fully qualified identifier with contract address (e.g., `A.0x1234.MyContract.MyType`)
 - A simple identifier (e.g., `AccountKey`, `PublicKey`)
 - A standard library type (e.g., `s.MyStruct`)
+
+**UInt8 Array Handling**: When a field in a composite type contains an array of `UInt8` values, the field name is annotated with `[UInt8]` and the value is converted to a hexadecimal string. For example:
+```typescript
+// Input: field named "publicKey" with UInt8 array [125, 199, 40]
+// Output: field named "publicKey [UInt8]" with value "7dc728"
+```
 
 ## Brief Mode
 
@@ -137,6 +144,40 @@ The module includes comprehensive unit tests covering all supported types and ed
 npm test
 ```
 
+### UInt8 Array to Hex Conversion
+```typescript
+const input = {
+  id: 'PublicKey',
+  fields: [
+    {
+      name: 'publicKey',
+      value: {
+        type: 'Array',
+        value: [
+          { type: 'UInt8', value: '0' },
+          { type: 'UInt8', value: '17' },
+          { type: 'UInt8', value: '255' },
+          { type: 'UInt8', value: '170' }
+        ]
+      }
+    },
+    {
+      name: 'algorithm',
+      value: { type: 'UInt8', value: '1' }
+    }
+  ]
+};
+
+cadenceValueToDict(input, false);
+// Returns:
+// {
+//   'PublicKey': {
+//     'publicKey [UInt8]': '0011ffaa',
+//     'algorithm': 1
+//   }
+// }
+```
+
 To run only the cadenceValueConverter tests:
 
 ```bash
@@ -149,3 +190,4 @@ npm test -- cadenceValueConverter.test.ts
 - The function handles nested structures recursively
 - Type checking is performed before string operations to prevent runtime errors
 - The function maintains backward compatibility with the original implementation while adding support for additional types
+- Arrays of UInt8 values are automatically converted to hexadecimal strings for compact representation, with field names annotated with `[UInt8]` in composite types

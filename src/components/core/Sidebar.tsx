@@ -43,16 +43,123 @@ const Sidebar: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [tree, setTree] = useState<TreeNode[]>(defaultTree);
   const [isLoading, setIsLoading] = useState(false);
+  const [supabase, setSupabase] = useState<any>(null);
+  const [snippetService, setSnippetService] = useState<any>(null);
+
+  useEffect(() => {
+    // Supabase integration is available but commented out due to build issues with Next.js static export
+    // To enable: install @supabase/supabase-js and uncomment the code below
+    // See SIDEBAR_README.md for setup instructions
+    
+    /*
+    if (typeof window !== 'undefined') {
+      const initSupabase = async () => {
+        try {
+          const { createClient } = await import('@supabase/supabase-js');
+          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+          const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+          
+          if (!supabaseUrl || !supabaseAnonKey) {
+            console.log('Supabase credentials not configured. Auth features will be disabled.');
+            return;
+          }
+          
+          const client = createClient(supabaseUrl, supabaseAnonKey);
+          setSupabase(client);
+          
+          const { SupabaseSnippetService } = await import('~/services/snippetService');
+          setSnippetService(new SupabaseSnippetService(client));
+          
+          const { data: { session } } = await client.auth.getSession();
+          setUser(session?.user ?? null);
+
+          const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+          });
+
+          return () => subscription.unsubscribe();
+        } catch (error) {
+          console.error('Error initializing Supabase:', error);
+        }
+      };
+      
+      initSupabase();
+    }
+    */
+  }, []);
+
+  // Load user snippets when user logs in
+  useEffect(() => {
+    const loadUserSnippets = async () => {
+      if (!user || !snippetService) return;
+
+      setIsLoading(true);
+      try {
+        const snippets = await snippetService.getUserSnippets();
+        
+        // Build tree from snippets
+        const newTree = [...defaultTree];
+        
+        snippets.forEach((snippet: any) => {
+          const networkNode = newTree.find(n => n.name.toLowerCase() === snippet.network);
+          if (!networkNode || !networkNode.children) return;
+          
+          const folderName = snippet.type === 'script' ? 'Scripts' : 'Transactions';
+          const folderNode = networkNode.children.find(n => n.name === folderName);
+          if (!folderNode) return;
+          
+          if (!folderNode.children) folderNode.children = [];
+          folderNode.children.push({
+            id: snippet.id,
+            name: snippet.name,
+            type: 'file',
+            code: snippet.code,
+            fileType: snippet.type,
+            network: snippet.network
+          });
+        });
+        
+        setTree(newTree);
+      } catch (error) {
+        console.error('Error loading snippets:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUserSnippets();
+  }, [user, snippetService]);
 
   const handleLogin = async () => {
-    // Placeholder for Supabase authentication
-    // This will be implemented when Supabase is properly configured
-    console.log('Login functionality requires Supabase configuration');
-    alert('Supabase authentication needs to be configured.\n\nPlease add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env.local file.');
+    if (!supabase) {
+      alert('Supabase authentication is not configured.\n\nTo enable authentication:\n1. Install @supabase/supabase-js\n2. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local\n\nSee SIDEBAR_README.md for details.');
+      return;
+    }
+    
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined
+        }
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Error logging in:', error.message);
+      alert(`Login error: ${error.message}`);
+    }
   };
 
   const handleLogout = async () => {
-    setUser(null);
+    if (!supabase) return;
+    
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setUser(null);
+    } catch (error: any) {
+      console.error('Error logging out:', error.message);
+    }
   };
 
   const toggleSidebar = () => {
@@ -91,10 +198,44 @@ const Sidebar: React.FC = () => {
     editor.fileName = fileName;
     update(appState, "editor");
 
-    // If user is logged in, save to Supabase
-    if (user) {
-      // TODO: Implement Supabase save
-      console.log('Save to Supabase:', { fileName, fileType, network });
+    // If user is logged in and snippet service is available, save to Supabase
+    if (user && snippetService) {
+      try {
+        const folderPath = `${network.charAt(0).toUpperCase() + network.slice(1)}/${fileType === 'script' ? 'Scripts' : 'Transactions'}`;
+        
+        const snippet = await snippetService.createSnippet({
+          name: fileName,
+          code: defaultCode,
+          type: fileType,
+          network: network,
+          folder_path: folderPath
+        });
+
+        // Add the new snippet to the tree
+        const newTree = [...tree];
+        const networkNode = newTree.find(n => n.name.toLowerCase() === network);
+        if (networkNode && networkNode.children) {
+          const folderName = fileType === 'script' ? 'Scripts' : 'Transactions';
+          const folderNode = networkNode.children.find(n => n.name === folderName);
+          if (folderNode) {
+            if (!folderNode.children) folderNode.children = [];
+            folderNode.children.push({
+              id: snippet.id,
+              name: snippet.name,
+              type: 'file',
+              code: snippet.code,
+              fileType: snippet.type,
+              network: snippet.network
+            });
+            setTree(newTree);
+          }
+        }
+
+        console.log('Snippet saved to Supabase:', snippet);
+      } catch (error: any) {
+        console.error('Error saving snippet:', error);
+        alert(`Error saving snippet: ${error.message}`);
+      }
     }
   };
 

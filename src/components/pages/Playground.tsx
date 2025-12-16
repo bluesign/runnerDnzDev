@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 
 import {Header} from '~/components/core/Header';
-import Sidebar from '~/components/core/Sidebar';
 import CodeEditor from '~/components/editor/CodeEditor';
 import FlexContainer from '~/components/editor/FlexContainer';
 import ResizablePreview from '~/components/preview/ResizablePreview';
@@ -18,6 +18,9 @@ import client from "@services/api";
 import {RuntimeType} from "@services/config";
 import {getTxStatus} from "~/state/dispatch";
 import {LayoutType} from "~/styles/modal";
+
+// Dynamically import Sidebar to avoid SSR issues with Supabase
+const Sidebar = dynamic(() => import('~/components/core/Sidebar'), { ssr: false });
 
 
 export const Playground : React.FC = () => {

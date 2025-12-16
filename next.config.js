@@ -6,7 +6,7 @@ const nextConfig = {
   reactStrictMode: false,
   output: "export",   
   transpilePackages: ['react-monaco-editor'],
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, webpack }) => {
     // Monaco Editor and CircularDependency plugins only for client-side
     if (!isServer) {
       config.plugins.push(
@@ -23,6 +23,14 @@ const nextConfig = {
           cwd: process.cwd(),
         })
       );
+
+      // Mark Supabase as external for client side to avoid bundling issues
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
     }
 
     // Exclude Monaco Editor and Supabase from server-side rendering

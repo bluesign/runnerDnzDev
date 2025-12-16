@@ -6,10 +6,6 @@ export const snippets = {
     },
     {
       "label": "Empty Transaction",
-      "snippet": "a6b48594e4faac3d"
-    },
-    {
-      "label": "Empty Transaction (Cadence 1.0)",
       "snippet": "7a3be0a4012944f9"
     }
 
@@ -17,10 +13,6 @@ export const snippets = {
   "Flow Token": [
     {
       "label": "Send Flow Token",
-      "snippet": "dd08688cd0aefe47"
-    },
-    {
-      "label": "Send Flow Token (Cadence 1.0)",
       "snippet": "755aaaa49fb2048c"
     }
   ]

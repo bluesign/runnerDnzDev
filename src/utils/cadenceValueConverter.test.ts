@@ -770,4 +770,127 @@ describe('cadenceValueToDict', () => {
       expect(cadenceValueToDict(input, false)).toBeNull();
     });
   });
+
+  describe('Real-world complex Cadence JSON', () => {
+    test('should handle AccountKey with nested PublicKey structure', () => {
+      const input = {
+        "value": [{
+          "value": {
+            "id": "AccountKey",
+            "fields": [
+              {
+                "value": {"value": "0", "type": "Int"},
+                "name": "keyIndex"
+              },
+              {
+                "value": {
+                  "value": {
+                    "id": "PublicKey",
+                    "fields": [
+                      {
+                        "value": {
+                          "value": [
+                            {"value": "125", "type": "UInt8"},
+                            {"value": "199", "type": "UInt8"},
+                            {"value": "40", "type": "UInt8"}
+                          ],
+                          "type": "Array"
+                        },
+                        "name": "publicKey"
+                      },
+                      {
+                        "value": {"value": "1", "type": "UInt8"},
+                        "name": "signatureAlgorithm"
+                      }
+                    ]
+                  },
+                  "type": "Struct"
+                },
+                "name": "publicKey"
+              },
+              {
+                "value": {"value": "1", "type": "UInt8"},
+                "name": "hashAlgorithm"
+              },
+              {
+                "value": {"value": "1000.00000000", "type": "UFix64"},
+                "name": "weight"
+              },
+              {
+                "value": {"value": "false", "type": "Bool"},
+                "name": "isRevoked"
+              }
+            ]
+          },
+          "type": "Struct"
+        }],
+        "type": "Array"
+      };
+
+      const result = cadenceValueToDict(input, false);
+      
+      // Should have an array with one AccountKey struct
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBe(1);
+      expect(result[0]).toHaveProperty('AccountKey');
+      
+      const accountKey = result[0]['AccountKey'];
+      expect(accountKey.keyIndex).toBe(0);
+      expect(accountKey.hashAlgorithm).toBe(1);
+      expect(accountKey.weight).toBe(1000.0);
+      expect(accountKey.isRevoked).toBe(false);
+      
+      // Check nested PublicKey struct
+      expect(accountKey.publicKey).toHaveProperty('PublicKey');
+      const publicKey = accountKey.publicKey['PublicKey'];
+      expect(Array.isArray(publicKey.publicKey)).toBe(true);
+      expect(publicKey.publicKey).toEqual([125, 199, 40]);
+      expect(publicKey.signatureAlgorithm).toBe(1);
+    });
+
+    test('should handle AccountKey with brief mode', () => {
+      const input = {
+        "value": [{
+          "value": {
+            "id": "AccountKey",
+            "fields": [
+              {
+                "value": {"value": "0", "type": "Int"},
+                "name": "keyIndex"
+              },
+              {
+                "value": {
+                  "value": {
+                    "id": "PublicKey",
+                    "fields": [
+                      {
+                        "value": {
+                          "value": [
+                            {"value": "125", "type": "UInt8"}
+                          ],
+                          "type": "Array"
+                        },
+                        "name": "publicKey"
+                      }
+                    ]
+                  },
+                  "type": "Struct"
+                },
+                "name": "publicKey"
+              }
+            ]
+          },
+          "type": "Struct"
+        }],
+        "type": "Array"
+      };
+
+      const result = cadenceValueToDict(input, true);
+      
+      // Should handle brief mode (though these structs don't have A. prefix)
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBe(1);
+      expect(result[0]).toHaveProperty('AccountKey');
+    });
+  });
 });

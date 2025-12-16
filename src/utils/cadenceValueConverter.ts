@@ -163,10 +163,8 @@ export function cadenceValueToDict(payload: any, brief: boolean = false): any {
     }
 
     // Handle composite types (structs, resources, events, contracts, enums with fields)
-    if (payload["id"] != null && (
-        payload["id"].indexOf("A.") === 0 || 
-        payload["id"].indexOf("s.") === 0
-    )) {
+    // These have an 'id' field and a 'fields' array
+    if (payload["id"] != null && payload["fields"] != null) {
         const res: Record<string, any> = {};
         for (const f in payload["fields"]) {
             res[payload["fields"][f]["name"]] = cadenceValueToDict(payload["fields"][f]["value"], brief);
@@ -175,11 +173,11 @@ export function cadenceValueToDict(payload: any, brief: boolean = false): any {
         const res2: Record<string, any> = {};
         if (brief) {
             // Handle A. prefix (e.g., A.0x1234.MyContract.MyType -> MyContract.MyType)
-            if (payload["id"].indexOf("A.") === 0) {
+            if (typeof payload["id"] === "string" && payload["id"].indexOf("A.") === 0) {
                 res2[payload["id"].split(".").slice(2).join(".")] = res;
             }
             // Handle s. prefix (e.g., s.MyStruct -> MyStruct)
-            else if (payload["id"].indexOf("s.") === 0) {
+            else if (typeof payload["id"] === "string" && payload["id"].indexOf("s.") === 0) {
                 res2[payload["id"].substring(2)] = res;
             } else {
                 res2[payload["id"]] = res;

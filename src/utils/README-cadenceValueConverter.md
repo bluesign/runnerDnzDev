@@ -55,11 +55,17 @@ The function supports all types defined in the Cadence JSON specification:
 - **Enum**: Extracts fields into an object
 - **InclusiveRange**: Returns range information with start, end, and step
 
+**Note**: Composite types are identified by having both an `id` field and a `fields` array. The `id` can be:
+- A fully qualified identifier with contract address (e.g., `A.0x1234.MyContract.MyType`)
+- A simple identifier (e.g., `AccountKey`, `PublicKey`)
+- A standard library type (e.g., `s.MyStruct`)
+
 ## Brief Mode
 
 When `brief` mode is enabled:
 - Type IDs with "A." prefix (e.g., `A.0x1234.MyContract.MyType`) are simplified to `MyContract.MyType`
 - Type IDs with "s." prefix (e.g., `s.MyStruct`) are simplified to `MyStruct`
+- Other type IDs remain unchanged
 
 ## Examples
 

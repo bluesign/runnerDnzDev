@@ -4,6 +4,7 @@ const CircularDependencyPlugin = require('circular-dependency-plugin');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  output: "export",   
   transpilePackages: ['react-monaco-editor'],
   webpack: (config, { isServer }) => {
     // Monaco Editor and CircularDependency plugins only for client-side

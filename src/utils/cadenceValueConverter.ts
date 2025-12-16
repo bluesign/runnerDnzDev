@@ -190,6 +190,6 @@ export function cadenceValueToDict(payload: any, brief: boolean = false): any {
         return res2;
     }
 
-    // Default: return the value field if it exists
-    return payload["value"];
+    // Default: return the value field if it exists, otherwise null
+    return payload["value"] !== undefined ? payload["value"] : null;
 }

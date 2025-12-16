@@ -743,4 +743,31 @@ describe('cadenceValueToDict', () => {
       expect(cadenceValueToDict(input, false)).toEqual(['hello', 42, true]);
     });
   });
+
+  describe('Edge cases for undefined values', () => {
+    test('should return null when value field is undefined', () => {
+      const input = { type: 'UnknownType', value: undefined };
+      expect(cadenceValueToDict(input, false)).toBeNull();
+    });
+
+    test('should return null when value field does not exist', () => {
+      const input = { type: 'UnknownType' };
+      expect(cadenceValueToDict(input, false)).toBeNull();
+    });
+
+    test('should return null when object has no recognized type', () => {
+      const input = { id: 'SomeID' };
+      expect(cadenceValueToDict(input, false)).toBeNull();
+    });
+
+    test('should return null for empty object', () => {
+      const input = {};
+      expect(cadenceValueToDict(input, false)).toBeNull();
+    });
+
+    test('should handle null value in String type', () => {
+      const input = { type: 'String', value: null };
+      expect(cadenceValueToDict(input, false)).toBeNull();
+    });
+  });
 });

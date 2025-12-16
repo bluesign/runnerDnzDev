@@ -482,7 +482,7 @@ describe('cadenceValueToDict', () => {
   });
 
   describe('Enum type', () => {
-    test('should handle Enum type', () => {
+    test('should handle Enum type with formatted rawValue', () => {
       const input = {
         type: 'Enum',
         value: {
@@ -495,9 +495,49 @@ describe('cadenceValueToDict', () => {
           ]
         }
       };
+      expect(cadenceValueToDict(input, false)).toBe('A.0x1234.MyContract.Color(rawValue: 0)');
+    });
+
+    test('should handle Enum type with different rawValue', () => {
+      const input = {
+        type: 'Enum',
+        value: {
+          id: 'HashAlgorithm',
+          fields: [
+            {
+              name: 'rawValue',
+              value: { type: 'UInt8', value: '3' }
+            }
+          ]
+        }
+      };
+      expect(cadenceValueToDict(input, false)).toBe('HashAlgorithm(rawValue: 3)');
+    });
+
+    test('should handle Enum in composite type field', () => {
+      const input = {
+        id: 'MyStruct',
+        fields: [
+          {
+            name: 'hashAlgorithm',
+            value: {
+              type: 'Enum',
+              value: {
+                id: 'HashAlgorithm',
+                fields: [
+                  {
+                    name: 'rawValue',
+                    value: { type: 'UInt8', value: '3' }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      };
       expect(cadenceValueToDict(input, false)).toEqual({
-        'A.0x1234.MyContract.Color': {
-          rawValue: 0
+        'MyStruct': {
+          hashAlgorithm: 'HashAlgorithm(rawValue: 3)'
         }
       });
     });

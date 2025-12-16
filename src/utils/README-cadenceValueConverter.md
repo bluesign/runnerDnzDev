@@ -53,13 +53,19 @@ The function supports all types defined in the Cadence JSON specification:
 - **Resource**: Extracts fields into an object
 - **Event**: Extracts fields into an object
 - **Contract**: Extracts fields into an object
-- **Enum**: Extracts fields into an object
+- **Enum**: Formatted as a string representation (see below)
 - **InclusiveRange**: Returns range information with start, end, and step
 
 **Note**: Composite types are identified by having both an `id` field and a `fields` array. The `id` can be:
 - A fully qualified identifier with contract address (e.g., `A.0x1234.MyContract.MyType`)
 - A simple identifier (e.g., `AccountKey`, `PublicKey`)
 - A standard library type (e.g., `s.MyStruct`)
+
+**Enum Formatting**: Enum types with a single `rawValue` field are formatted as strings for readability:
+```typescript
+// Input: HashAlgorithm enum with rawValue: 3
+// Output: "HashAlgorithm(rawValue: 3)"
+```
 
 **UInt8 Array Handling**: When a field in a composite type contains an array of `UInt8` values, the field name is annotated with `[UInt8]` and the value is converted to a hexadecimal string. For example:
 ```typescript
@@ -178,6 +184,38 @@ cadenceValueToDict(input, false);
 // }
 ```
 
+### Enum Type Formatting
+```typescript
+const input = {
+  id: 'MyStruct',
+  fields: [
+    {
+      name: 'hashAlgorithm',
+      value: {
+        type: 'Enum',
+        value: {
+          id: 'HashAlgorithm',
+          fields: [
+            {
+              name: 'rawValue',
+              value: { type: 'UInt8', value: '3' }
+            }
+          ]
+        }
+      }
+    }
+  ]
+};
+
+cadenceValueToDict(input, false);
+// Returns:
+// {
+//   'MyStruct': {
+//     'hashAlgorithm': 'HashAlgorithm(rawValue: 3)'
+//   }
+// }
+```
+
 To run only the cadenceValueConverter tests:
 
 ```bash
@@ -191,3 +229,4 @@ npm test -- cadenceValueConverter.test.ts
 - Type checking is performed before string operations to prevent runtime errors
 - The function maintains backward compatibility with the original implementation while adding support for additional types
 - Arrays of UInt8 values are automatically converted to hexadecimal strings for compact representation, with field names annotated with `[UInt8]` in composite types
+- Enum types with a single `rawValue` field are formatted as readable strings (e.g., `"EnumType(rawValue: X)"`) instead of nested objects

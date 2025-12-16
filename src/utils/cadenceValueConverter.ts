@@ -193,6 +193,12 @@ export function cadenceValueToDict(payload: any, brief: boolean = false): any {
     // Handle composite types (structs, resources, events, contracts, enums with fields)
     // These have an 'id' field and a 'fields' array
     if (payload["id"] != null && payload["fields"] != null) {
+        // Special handling for enums - if there's only a rawValue field, format as "EnumType(rawValue: X)"
+        if (payload["fields"].length === 1 && payload["fields"][0]["name"] === "rawValue") {
+            const rawValue = cadenceValueToDict(payload["fields"][0]["value"], brief);
+            return `${payload["id"]}(rawValue: ${rawValue})`;
+        }
+        
         const res: Record<string, any> = {};
         for (const f in payload["fields"]) {
             const field = payload["fields"][f];

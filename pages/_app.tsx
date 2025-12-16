@@ -7,6 +7,7 @@ import { loadConfig } from '~/state';
 import '~/index.css';
 import '~/App.css';
 import '~/components/core/Header.css';
+import '~/components/core/Sidebar.css';
 import '~/components/core/StatusBar/StatusBar.css';
 import '~/components/core/StatusBar/StatusBarItem.css';
 import '~/components/core/Panel/PanelAction.css';

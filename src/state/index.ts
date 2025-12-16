@@ -33,6 +33,9 @@ export const appState = {
             width: 300,
             collapsed: false,
             layout:LayoutType.Vertical,
+        },
+        sidebar: {
+            isOpen: false,
         }
     },
     editor: {

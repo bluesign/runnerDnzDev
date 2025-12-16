@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { useRouter } from 'next/router';
 
 import {Header} from '~/components/core/Header';
+import Sidebar from '~/components/core/Sidebar';
 import CodeEditor from '~/components/editor/CodeEditor';
 import FlexContainer from '~/components/editor/FlexContainer';
 import ResizablePreview from '~/components/preview/ResizablePreview';
@@ -143,6 +144,7 @@ export const Playground : React.FC = () => {
         <ThemeProvider className="App" theme={theme!}>
 
             <div className="Playground">
+                <Sidebar />
                 <Header embed={ embed }/>
                  <div className={`Layout Layout--${UI.panel.layout}`}>
 

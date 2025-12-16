@@ -25,9 +25,9 @@ const nextConfig = {
       );
     }
 
-    // Exclude Monaco Editor from server-side rendering
+    // Exclude Monaco Editor and Supabase from server-side rendering
     if (isServer) {
-      config.externals = [...(config.externals || []), 'monaco-editor'];
+      config.externals = [...(config.externals || []), 'monaco-editor', '@supabase/supabase-js'];
     }
 
     // Add webpack aliases

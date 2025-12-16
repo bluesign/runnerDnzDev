@@ -289,7 +289,7 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <>
+    <div className="sidebar-container">
       <button className="sidebar-toggle" onClick={toggleSidebar} aria-label="Toggle Sidebar">
         <FiMenu size={20} />
       </button>
@@ -326,11 +326,7 @@ const Sidebar: React.FC = () => {
           {renderTree(tree)}
         </div>
       </div>
-
-      {UI.sidebar.isOpen && (
-        <div className="sidebar-overlay" onClick={toggleSidebar}></div>
-      )}
-    </>
+    </div>
   );
 };
 

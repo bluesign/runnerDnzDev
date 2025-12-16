@@ -148,19 +148,21 @@ export const Playground : React.FC = () => {
 
             <div className="Playground">
                 <Sidebar />
-                <Header embed={ embed }/>
-                 <div className={`Layout Layout--${UI.panel.layout}`}>
+                <div className="sidebar-main-content">
+                    <Header embed={ embed }/>
+                    <div className={`Layout Layout--${UI.panel.layout}`}>
 
-                    <FlexContainer>
-                        <CadenceChecker newCadence={settings.runtime === RuntimeType.FlowPreviewnet || settings.runtime === RuntimeType.FlowTestnet || settings.runtime === RuntimeType.FlowEmulator  }>
-                            <CodeEditor/>
-                        </CadenceChecker>
-                    </FlexContainer>
+                        <FlexContainer>
+                            <CadenceChecker newCadence={settings.runtime === RuntimeType.FlowPreviewnet || settings.runtime === RuntimeType.FlowTestnet || settings.runtime === RuntimeType.FlowEmulator  }>
+                                <CodeEditor/>
+                            </CadenceChecker>
+                        </FlexContainer>
 
-                    <ResizablePreview />
+                        <ResizablePreview />
 
+                    </div>
+                    <StatusBar/>
                 </div>
-                <StatusBar/>
             </div>
         </ThemeProvider>
     );

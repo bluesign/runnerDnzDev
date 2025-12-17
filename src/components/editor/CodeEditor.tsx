@@ -15,6 +15,7 @@ const ANALYZE_DEBOUNCE_TIME = 1000;
 
 export const CodeEditor: React.FC<PreviewProps> = ()=>{
 
+  console.log('[CodeEditor] Initializing CodeEditor component...');
   const [previousTimeout, setPreviousTimeout] =  useState<any>(null)
   const [editorInstance, setEditorInstance] = useState<any>(null)
 
@@ -25,8 +26,11 @@ export const CodeEditor: React.FC<PreviewProps> = ()=>{
 
   const editorDidMount = (editorInstance: editor.IStandaloneCodeEditor, m: monaco.editor.IEditorConstructionOptions) => {
 
+    console.log('[CodeEditor] Editor mounted, setting up...');
     setEditorInstance(editorInstance);
+    console.log('[CodeEditor] Configuring Cadence language...');
     configureCadence(m);
+    console.log('[CodeEditor] Cadence language configured');
 
     const actions = [
       {
@@ -56,6 +60,7 @@ export const CodeEditor: React.FC<PreviewProps> = ()=>{
     actions.forEach(action => editorInstance.addAction(action));
     attachCustomCommands(editorInstance);
     //editorInstance.focus();
+    console.log('[CodeEditor] Editor setup complete');
   }
 
   const doAnalyze = () => {

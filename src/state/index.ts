@@ -68,23 +68,40 @@ on(appState, 'monaco', c => saveState("monaco", c));
 on(appState, 'settings', c => saveState("settings", c));
 
 export const loadConfig = ()=> {
+    console.log('[Config] Loading UI state...');
     const ui = loadState("UI")
     if (!!ui){
         appState.UI = ui
+        console.log('[Config] UI state loaded');
+    } else {
+        console.log('[Config] No UI state found in localStorage');
     }
 
+    console.log('[Config] Loading editor state...');
     const editor = loadState("editor")
     if (!!editor) {
         appState.editor = loadState("editor")
+        console.log('[Config] Editor state loaded');
+    } else {
+        console.log('[Config] No editor state found in localStorage');
     }
 
+    console.log('[Config] Loading Monaco state...');
     const monaco =  loadState("monaco")
     if (!!monaco){
         appState.monaco = monaco
+        console.log('[Config] Monaco state loaded');
+    } else {
+        console.log('[Config] No Monaco state found in localStorage');
     }
+    
+    console.log('[Config] Loading settings state...');
     const settings =  loadState("settings")
     if (!!settings){
         appState.settings = settings
+        console.log('[Config] Settings state loaded');
+    } else {
+        console.log('[Config] No settings state found in localStorage');
     }
 
 }
@@ -92,17 +109,21 @@ export const loadState = (section: string) =>
 {
     const val = localStorage.getItem(section);
     if (!val) {
+        console.log(`[Config] No value found for section: ${section}`);
         return null;
     }
 
     try {
         const parsed = JSON.parse(val);
         if (!parsed) {
+            console.log(`[Config] Empty parsed value for section: ${section}`);
             return null;
         }
+        console.log(`[Config] Successfully parsed section: ${section}`);
         return parsed;
 
-    } catch (_) {
+    } catch (error) {
+        console.error(`[Config] Error parsing section ${section}:`, error);
         return null;
     }
 }

@@ -10,13 +10,16 @@ import {update, use} from "use-minimal-state";
 let monacoServicesInstalled = false;
 
 async function startLanguageServer(newCadence, callbacks, getCode, options) {
+  console.log('[useLanguageServer] Starting language server...');
   const { setLanguageServer, setCallbacks } = options;
   const server = await CadenceLanguageServer.create(newCadence, callbacks);
+  console.log('[useLanguageServer] Language server created, waiting for it to be ready...');
   new Promise(() => {
     let checkInterval = setInterval(() => {
       // .toServer() method is populated by language server
       // if it was not properly started or in progress it will be "null"
       if (callbacks.toServer !== null) {
+        console.log('[useLanguageServer] Language server is ready!');
         clearInterval(checkInterval);
         callbacks.getAddressCode = getCode;
         setCallbacks(callbacks);
@@ -32,11 +35,18 @@ const launchLanguageClient = async (
   languageServer,
   setLanguageClient
 ) => {
+  console.log('[useLanguageServer] Launching language client...');
   if (languageServer) {
+    console.log('[useLanguageServer] Creating Cadence language client...');
     const newClient = createCadenceLanguageClient(callbacks);
+    console.log('[useLanguageServer] Starting language client...');
     newClient.start();
+    console.log('[useLanguageServer] Waiting for client to be ready...');
     await newClient.onReady();
+    console.log('[useLanguageServer] Language client is ready!');
     setLanguageClient(newClient);
+  } else {
+    console.log('[useLanguageServer] No language server available, skipping client launch');
   }
 };
 
@@ -103,6 +113,7 @@ export default function useLanguageServer(newCadence) {
 
   const restartServer = (newCadence=false) => {
     console.log("Restarting server...", newCadence);
+    console.log('[useLanguageServer] Initiating server restart with newCadence:', newCadence);
 
     startLanguageServer(newCadence, callbacks, getCode, {
       setLanguageServer,
@@ -116,17 +127,27 @@ export default function useLanguageServer(newCadence) {
     // As the Cadence language server is not providing any commands this is OK
 
     console.log("Installing monaco services");
+    console.log('[useLanguageServer] Setting up Monaco services...');
     if (!monacoServicesInstalled) {
+      console.log('[useLanguageServer] Installing Monaco services...');
       MonacoServices.install(monaco);
       monacoServicesInstalled = true;
+      console.log('[useLanguageServer] Monaco services installed');
+    } else {
+      console.log('[useLanguageServer] Monaco services already installed');
     }
 
+    console.log('[useLanguageServer] Triggering server restart...');
     restartServer(newCadence);
   }, [newCadence]);
 
   useEffect(() => {
+    console.log('[useLanguageServer] Language server state changed:', languageServer ? 'available' : 'not available');
     if (!languageClient && window) {
+      console.log('[useLanguageServer] No language client yet, launching...');
       launchLanguageClient(callbacks, languageServer, setLanguageClient).then();
+    } else if (languageClient) {
+      console.log('[useLanguageServer] Language client already exists');
     }
   }, [languageServer]);
 

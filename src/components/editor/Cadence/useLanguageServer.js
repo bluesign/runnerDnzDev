@@ -91,7 +91,7 @@ export default function useLanguageServer(newCadence) {
       // Note: Synchronous XHR is deprecated but required to meet the spec:
       // "wait till code loads, and then return"
       const xhr = new XMLHttpRequest();
-      const url = `${accessNodeApi}/v1/accounts/0x${account}`;
+      const url = `${accessNodeApi}/v1/accounts/0x${account}?expand=contracts`;
       xhr.open("GET", url, false); // false makes the request synchronous
       xhr.send(null);
 
@@ -102,13 +102,10 @@ export default function useLanguageServer(newCadence) {
           console.log(response)
 
           for(let key in contracts) {
-            console.log(key)
-            codes[`${account}.${key}`] = contracts[key]
+            //console.log(key)
+            codes[`${account}.${key}`] = atob(contracts[key])
           }
           
-          // Trigger LS re-check by adding empty space and updating editor state
-          appState.editor.code=appState.editor.code+" "
-          update(appState, "editor")
         } catch (parseError) {
           console.error("Failed to parse account response:", parseError);
         }

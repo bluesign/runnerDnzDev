@@ -97,11 +97,13 @@ export function loadFont(fontName: string) {
   let font = fontsList[fontName];
   if (!font || loadedFonts.has(fontName)) return;
   console.log('Loading font "%s"...', font.label);
+  console.log('[Fonts] Starting font load for:', fontName);
   let elem = document.createElement('style');
   elem.id = `font-${fontName}`;
   elem.innerText = fontToStyle(font);
   document.head.appendChild(elem);
   loadedFonts.add(fontName);
+  console.log('[Fonts] Font loaded successfully:', fontName);
 }
 
 /**
@@ -111,14 +113,17 @@ export function loadFont(fontName: string) {
  * @param fontName font name
  */
 export function getFontFamily(fontName: string): string {
+  console.log('[Fonts] Getting font family for:', fontName);
   if (fontName === DEFAULT_FONT) return fallbackFonts;
   let font = fontsList[fontName];
   if (!font) {
     console.warn('getFontFamily: unknown font "%s", fallback monospace font used', fontName);
+    console.warn('[Fonts] Unknown font, using fallback:', fontName);
     return fallbackFonts;
   }
 
   loadFont(fontName);
+  console.log('[Fonts] Font family resolved:', fontName);
   return `${font.family},${fallbackFonts}`;
 }
 

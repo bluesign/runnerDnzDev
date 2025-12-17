@@ -22,19 +22,29 @@ export class CadenceLanguageServer {
   static lastSource = ""
 
   static async load(wasmSource:string, newCadence) {
+    console.log('[LanguageServer] Starting WASM load process...');
+    console.log('[LanguageServer] WASM source:', wasmSource);
+    console.log('[LanguageServer] Already loaded:', this.isLoaded);
+    console.log('[LanguageServer] Last source:', this.lastSource);
+    
     if (this.isLoaded && this.lastSource===wasmSource) {
+      console.log('[LanguageServer] WASM already loaded, skipping');
       return;
     }
 
+    console.log('[LanguageServer] Fetching WASM from:', wasmSource);
     const wasm = await fetch(wasmSource) ;
 
     console.log("loaded", wasm.status, wasm.ok)
     console.log(go.importObject)
+    
+    console.log('[LanguageServer] Instantiating WebAssembly module...');
     const module = await WebAssembly.instantiateStreaming(
       wasm,
         go.importObject
     );
     console.log("module done")
+    console.log('[LanguageServer] WebAssembly module instantiated successfully');
 
 
     // For each file descriptor, buffer the written content until reaching a newline
@@ -74,10 +84,12 @@ export class CadenceLanguageServer {
     };
 
     console.log("running")
+    console.log('[LanguageServer] Running Go WebAssembly instance...');
     go.run(module.instance);
 
     this.isLoaded = true;
     this.lastSource=wasmSource
+    console.log('[LanguageServer] WASM load complete, language server is ready');
   }
 
   static functionNamePrefix = "CADENCE_LANGUAGE_SERVER";
@@ -91,9 +103,12 @@ export class CadenceLanguageServer {
   }
 
   static async create(newCadence, callbacks) {
+    console.log('[LanguageServer] Creating new language server instance...');
     let source = "https://cdn.dnz.dev/cadenceNew2.wasm"
+    console.log('[LanguageServer] WASM source URL:', source);
     await this.load(source, newCadence);
 
+    console.log('[LanguageServer] Instantiating CadenceLanguageServer...');
     return new CadenceLanguageServer(callbacks);
   }
   public readonly id: number;
@@ -104,8 +119,11 @@ export class CadenceLanguageServer {
     // by calling global functions. There does not seem to be support yet to directly import functions
     // from the JS environment into the WebAssembly environment
 
+    console.log('[LanguageServer] Constructor - setting up callbacks...');
     this.isClientClosed = false
+    console.log('[LanguageServer] Starting language server...');
     this.id = window[CadenceLanguageServer.functionName("start")]();
+    console.log('[LanguageServer] Language server started with ID:', this.id);
 
     window[this.functionName("toClient")] = (message) => {
       callbacks.toClient(JSON.parse(message));

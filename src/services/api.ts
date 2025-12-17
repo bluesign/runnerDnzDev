@@ -37,27 +37,35 @@ class Client implements IAPIClient {
   }
 
   async getSnippet(id: string): Promise<Snippet> {
+    console.log('[API] Fetching snippet:', id);
     return this.get<Snippet>(`/${id}`);
   }
 
   async shareSnippet(code: string, env: string): Promise<ShareResponse> {
+    console.log('[API] Sharing snippet, env:', env);
     return this.post<ShareResponse>('/', {code: code, env:env});
   }
 
   private async get<T>(uri: string): Promise<T> {
     try {
+      console.log('[API] GET request to:', uri);
       const resp = await this.client.get<T>(uri);
+      console.log('[API] GET request successful:', uri);
       return resp.data;
     } catch (err) {
+      console.error('[API] GET request failed:', uri, err);
       throw Client.extractAPIError(err);
     }
   }
 
   private async post<T>(uri: string, data: any, cfg?: axios.AxiosRequestConfig): Promise<T> {
     try {
+      console.log('[API] POST request to:', uri);
       const resp = await this.client.post<T>(uri, data, cfg);
+      console.log('[API] POST request successful:', uri);
       return resp.data;
     } catch (err) {
+      console.error('[API] POST request failed:', uri, err);
       throw Client.extractAPIError(err);
     }
   }

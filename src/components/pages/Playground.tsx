@@ -20,6 +20,7 @@ import {LayoutType} from "~/styles/modal";
 
 
 export const Playground : React.FC = () => {
+    console.log('[Playground] Initializing Playground component...');
     const router = useRouter();
     const { snippetID: snippetIDParam, transactionID: transactionIDParam } = router.query;
     const snippetID = typeof snippetIDParam === 'string' ? snippetIDParam : undefined;
@@ -30,10 +31,14 @@ export const Playground : React.FC = () => {
     const editor = use(appState, "editor")
     const status = use(appState, "status")
 
+    console.log('[Playground] SnippetID:', snippetID);
+    console.log('[Playground] TransactionID:', transactionID);
+
     useEffect(()=> {
         if (!transactionID)
             return
 
+        console.log('[Playground] Getting transaction status for:', transactionID);
         getTxStatus(transactionID)
 
     },[transactionID])
@@ -41,41 +46,50 @@ export const Playground : React.FC = () => {
     const embed = params.get("embed") ?? ""
 
     useEffect(()=>{
+        console.log('[Playground] Processing URL parameters...');
         UI.panel.layout = LayoutType.Vertical
         UI.panel.height = 250
         UI.panel.width = 250
 
         if (params.get("filename")!==""){
             editor.fileName = params.get("filename")!
+            console.log('[Playground] Filename from URL:', editor.fileName);
         }
 
         if (params.get("code")!==""){
             editor.code = params.get("code")!
+            console.log('[Playground] Code from URL (length):', editor.code.length);
         }
 
         if (params.get("colormode")==="dark"){
             settings.darkMode = true
+            console.log('[Playground] Color mode: dark');
         }
 
         if (params.get("colormode")==="light"){
             settings.darkMode = false
+            console.log('[Playground] Color mode: light');
         }
 
 
         if (params.get("network")==="mainnet"){
             settings.runtime = RuntimeType.FlowMainnet
+            console.log('[Playground] Network: mainnet');
         }
 
         if (params.get("network")==="testnet"){
             settings.runtime = RuntimeType.FlowTestnet
+            console.log('[Playground] Network: testnet');
         }
 
         if (params.get("network")==="previewnet"){
             settings.runtime = RuntimeType.FlowPreviewnet
+            console.log('[Playground] Network: previewnet');
         }
 
         if (params.get("network")==="emulator"){
             settings.runtime = RuntimeType.FlowEmulator
+            console.log('[Playground] Network: emulator');
         }
 
         if (params.get("output")==="vertical"){
@@ -83,34 +97,42 @@ export const Playground : React.FC = () => {
             if (params.get("outputSize")!=="" && params.get("outputSize")!==null){
                 UI.panel.height = parseInt(params.get("outputSize")!)
             }
+            console.log('[Playground] Output layout: vertical');
         }
         if (params.get("output")==="horizontal" ){
             UI.panel.layout = LayoutType.Horizontal
             if (params.get("outputSize")!=="" && params.get("outputSize")!==null) {
                 UI.panel.width = parseInt(params.get("outputSize")!)
             }
+            console.log('[Playground] Output layout: horizontal');
         }
         if (params.get("output")==="none"){
             UI.panel.width = 0
             UI.panel.height = 0
+            console.log('[Playground] Output layout: none');
         }
 
         if (embed==="embed"){
             UI.panel.width = 0
             UI.panel.height = 0
+            console.log('[Playground] Embed mode enabled');
 
         }
         update(appState, "settings")
         update(appState, "editor")
         update(appState, "UI")
         console.log(UI.panel)
-        if (!snippetID)
+        if (!snippetID) {
+            console.log('[Playground] No snippetID, skipping snippet load');
             return
+        }
 
+        console.log('[Playground] Loading snippet:', snippetID);
         status.loading = true
         update(appState, "status")
         //load snippet
         client.getSnippet(snippetID).then((snipResult)=>{
+            console.log('[Playground] Snippet loaded successfully');
             editor.code = snipResult.code
             settings.runtime = snipResult.env as RuntimeType
             status.loading = false
@@ -118,6 +140,7 @@ export const Playground : React.FC = () => {
             update(appState,"settings")
             update(appState, "status")
         }).catch((error)=>{
+            console.error('[Playground] Error loading snippet:', error);
             status.lastError = error.message
             status.loading = false
             update(appState, "status")

@@ -6,6 +6,7 @@ import { CadenceLanguageServer } from "./language-server";
 import { createCadenceLanguageClient } from "./language-client";
 import {appState} from "~/state";
 import {update, use} from "use-minimal-state";
+import config, {RuntimeType} from '@services/config';
 
 let monacoServicesInstalled = false;
 
@@ -67,24 +68,34 @@ export default function useLanguageServer(newCadence) {
   var codes = {}
 
 
-  const getCodeAsync = async (address,callbacks) => {
-
+  const getSync = (address) => {
     let [account, _] = address.split(".")
     while (account.length<16){
       account = "0" + account
     }
-  console.log(account)
-    let response =  await fcl.send([fcl.getAccount(`0x${account}`)])
-    let contracts = response["account"]["contracts"]
-  console.log(response)
+    console.log(account)
 
-    for(let key in contracts) {
-      console.log(key)
-      codes[`${account}.${key}`] = contracts[key]
+    // Get the current runtime network configuration
+    const runtime = appState.settings.runtime || RuntimeType.FlowMainnet;
+    const networkConfig = config.networkConfig[runtime];
+    const accessNodeApi = networkConfig["accessNode.api"];
+    
+    // Use synchronous XMLHttpRequest to block until data loads
+    const xhr = new XMLHttpRequest();
+    const url = `${accessNodeApi}/v1/accounts/0x${account}`;
+    xhr.open("GET", url, false); // false makes the request synchronous
+    xhr.send(null);
+
+    if (xhr.status === 200) {
+      const response = JSON.parse(xhr.responseText);
+      const contracts = response.contracts || {};
+      console.log(response)
+
+      for(let key in contracts) {
+        console.log(key)
+        codes[`${account}.${key}`] = contracts[key]
+      }
     }
-
-    appState.editor.code=appState.editor.code+" "
-    update(appState, "editor")
   }
 
   const getCode = (address) => {
@@ -96,8 +107,8 @@ export default function useLanguageServer(newCadence) {
       return codes[address]
     }
 
-    getCodeAsync(address,callbacks).then()
-    return null
+    getSync(address)
+    return codes[address] || null
   };
 
 

@@ -75,26 +75,44 @@ export default function useLanguageServer(newCadence) {
     }
     console.log(account)
 
-    // Get the current runtime network configuration
-    const runtime = appState.settings.runtime || RuntimeType.FlowMainnet;
-    const networkConfig = config.networkConfig[runtime];
-    const accessNodeApi = networkConfig["accessNode.api"];
-    
-    // Use synchronous XMLHttpRequest to block until data loads
-    const xhr = new XMLHttpRequest();
-    const url = `${accessNodeApi}/v1/accounts/0x${account}`;
-    xhr.open("GET", url, false); // false makes the request synchronous
-    xhr.send(null);
-
-    if (xhr.status === 200) {
-      const response = JSON.parse(xhr.responseText);
-      const contracts = response.contracts || {};
-      console.log(response)
-
-      for(let key in contracts) {
-        console.log(key)
-        codes[`${account}.${key}`] = contracts[key]
+    try {
+      // Get the current runtime network configuration
+      const runtime = appState.settings.runtime || RuntimeType.FlowMainnet;
+      const networkConfig = config.networkConfig[runtime];
+      
+      if (!networkConfig || !networkConfig["accessNode.api"]) {
+        console.error("Invalid network configuration for runtime:", runtime);
+        return;
       }
+      
+      const accessNodeApi = networkConfig["accessNode.api"];
+      
+      // Use synchronous XMLHttpRequest to block until data loads
+      // Note: Synchronous XHR is deprecated but required to meet the spec:
+      // "wait till code loads, and then return"
+      const xhr = new XMLHttpRequest();
+      const url = `${accessNodeApi}/v1/accounts/0x${account}`;
+      xhr.open("GET", url, false); // false makes the request synchronous
+      xhr.send(null);
+
+      if (xhr.status === 200) {
+        try {
+          const response = JSON.parse(xhr.responseText);
+          const contracts = response.contracts || {};
+          console.log(response)
+
+          for(let key in contracts) {
+            console.log(key)
+            codes[`${account}.${key}`] = contracts[key]
+          }
+        } catch (parseError) {
+          console.error("Failed to parse account response:", parseError);
+        }
+      } else {
+        console.error(`Failed to fetch account ${account}: HTTP ${xhr.status}`);
+      }
+    } catch (error) {
+      console.error("Error in getSync:", error);
     }
   }
 

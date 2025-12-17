@@ -105,6 +105,10 @@ export default function useLanguageServer(newCadence) {
             console.log(key)
             codes[`${account}.${key}`] = contracts[key]
           }
+          
+          // Trigger LS re-check by adding empty space and updating editor state
+          appState.editor.code=appState.editor.code+" "
+          update(appState, "editor")
         } catch (parseError) {
           console.error("Failed to parse account response:", parseError);
         }

@@ -111,3 +111,6 @@ test-results/
 playwright-report/
 playwright/.cache/
 yarn.lock
+
+# Temporary files
+tmp/

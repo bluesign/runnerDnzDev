@@ -56,8 +56,9 @@ export const Playground : React.FC = () => {
             console.log('[Playground] Filename from URL:', editor.fileName);
         }
 
-        if (params.get("code")!==""){
-            editor.code = params.get("code")!
+        const codeParam = params.get("code");
+        if (codeParam && codeParam !== ""){
+            editor.code = codeParam
             console.log('[Playground] Code from URL (length):', editor.code.length);
         }
 

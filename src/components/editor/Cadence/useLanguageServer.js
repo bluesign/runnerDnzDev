@@ -6,6 +6,7 @@ import { CadenceLanguageServer } from "./language-server";
 import { createCadenceLanguageClient } from "./language-client";
 import {appState} from "~/state";
 import {update, use} from "use-minimal-state";
+import config, {RuntimeType} from '@services/config';
 
 let monacoServicesInstalled = false;
 
@@ -77,24 +78,53 @@ export default function useLanguageServer(newCadence) {
   var codes = {}
 
 
-  const getCodeAsync = async (address,callbacks) => {
-
+  const getSync = (address) => {
     let [account, _] = address.split(".")
     while (account.length<16){
       account = "0" + account
     }
-  console.log(account)
-    let response =  await fcl.send([fcl.getAccount(`0x${account}`)])
-    let contracts = response["account"]["contracts"]
-  console.log(response)
+    console.log(account)
 
-    for(let key in contracts) {
-      console.log(key)
-      codes[`${account}.${key}`] = contracts[key]
+    try {
+      // Get the current runtime network configuration
+      const runtime = appState.settings.runtime || RuntimeType.FlowMainnet;
+      const networkConfig = config.networkConfig[runtime];
+      
+      if (!networkConfig || !networkConfig["accessNode.api"]) {
+        console.error("Invalid network configuration for runtime:", runtime);
+        return;
+      }
+      
+      const accessNodeApi = networkConfig["accessNode.api"];
+      
+      // Use synchronous XMLHttpRequest to block until data loads
+      // Note: Synchronous XHR is deprecated but required to meet the spec:
+      // "wait till code loads, and then return"
+      const xhr = new XMLHttpRequest();
+      const url = `${accessNodeApi}/v1/accounts/0x${account}?expand=contracts`;
+      xhr.open("GET", url, false); // false makes the request synchronous
+      xhr.send(null);
+
+      if (xhr.status === 200) {
+        try {
+          const response = JSON.parse(xhr.responseText);
+          const contracts = response.contracts || {};
+          console.log(response)
+
+          for(let key in contracts) {
+            //console.log(key)
+            codes[`${account}.${key}`] = atob(contracts[key])
+          }
+          
+        } catch (parseError) {
+          console.error("Failed to parse account response:", parseError);
+        }
+      } else {
+        console.error(`Failed to fetch account ${account}: HTTP ${xhr.status}`);
+      }
+    } catch (error) {
+      console.error("Error in getSync:", error);
     }
-
-    appState.editor.code=appState.editor.code+" "
-    update(appState, "editor")
   }
 
   const getCode = (address) => {
@@ -106,8 +136,8 @@ export default function useLanguageServer(newCadence) {
       return codes[address]
     }
 
-    getCodeAsync(address,callbacks).then()
-    return null
+    getSync(address)
+    return codes[address] || null
   };
 
 

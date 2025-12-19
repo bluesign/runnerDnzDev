@@ -399,6 +399,20 @@ describe('loadConfig with validation', () => {
       expect(appState.UI.shareCreated).toBe(true);
     });
 
+    test('should accept partial panel state', () => {
+      const partialUI = {
+        shareCreated: false,
+        snippetId: null,
+        panel: {
+          height: 500,
+          // missing width, collapsed, and layout - should still be valid
+        },
+      };
+      localStorage.setItem('UI', JSON.stringify(partialUI));
+      loadConfig();
+      expect(appState.UI.panel.height).toBe(500);
+    });
+
     test('should accept partial monaco settings', () => {
       const partialMonaco = {
         fontFamily: 'Consolas',

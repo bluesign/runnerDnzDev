@@ -41,18 +41,24 @@ const isValidCursorStyle = (value: any): value is MonacoSettings['cursorStyle'] 
     return ['line', 'block', 'underline', 'line-thin', 'block-outline', 'underline-thin'].includes(value);
 };
 
+const validatePanelState = (panel: any): boolean => {
+    if (!panel || typeof panel !== 'object' || Array.isArray(panel)) return false;
+    
+    // Allow partial panel objects - only validate fields that are present
+    if (panel.height !== undefined && (typeof panel.height !== 'number' || panel.height < 0)) return false;
+    if (panel.width !== undefined && (typeof panel.width !== 'number' || panel.width < 0)) return false;
+    if (panel.collapsed !== undefined && typeof panel.collapsed !== 'boolean') return false;
+    if (panel.layout !== undefined && !isValidLayoutType(panel.layout)) return false;
+    
+    return true;
+};
+
 const validateUIState = (value: any): typeof appState.UI | null => {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
     
     // Validate panel if it exists
-    if (value.panel && typeof value.panel === 'object') {
-        const panel = value.panel;
-        if (typeof panel.height !== 'number' || panel.height < 0 ||
-            typeof panel.width !== 'number' || panel.width < 0 ||
-            typeof panel.collapsed !== 'boolean' ||
-            !isValidLayoutType(panel.layout)) {
-            return null;
-        }
+    if (value.panel !== undefined && !validatePanelState(value.panel)) {
+        return null;
     }
     
     // Validate top-level UI properties
@@ -108,7 +114,7 @@ export const appState = {
             height: 300,
             width: 300,
             collapsed: false,
-            layout:LayoutType.Vertical,
+            layout: LayoutType.Vertical,
         }
     },
     editor: {

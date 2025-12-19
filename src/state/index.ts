@@ -25,6 +25,9 @@ const defaultMonacoSettings: MonacoSettings = {
 };
 
 // Validation functions for config sections
+// These functions ensure that data loaded from localStorage is valid before applying it to appState.
+// Invalid data will cause the function to return null, triggering a fallback to default values.
+// This protects against corrupted or malicious localStorage data.
 const isValidLayoutType = (value: any): value is LayoutType => {
     return value === LayoutType.Horizontal || value === LayoutType.Vertical;
 };

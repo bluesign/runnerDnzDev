@@ -24,6 +24,82 @@ const defaultMonacoSettings: MonacoSettings = {
     mouseWheelZoom: true,
 };
 
+// Validation functions for config sections
+const isValidLayoutType = (value: any): value is LayoutType => {
+    return value === LayoutType.Horizontal || value === LayoutType.Vertical;
+};
+
+const isValidRuntimeType = (value: any): value is RuntimeType => {
+    return Object.values(RuntimeType).includes(value);
+};
+
+const isValidCursorBlinking = (value: any): value is MonacoSettings['cursorBlinking'] => {
+    return ['blink', 'smooth', 'phase', 'expand', 'solid'].includes(value);
+};
+
+const isValidCursorStyle = (value: any): value is MonacoSettings['cursorStyle'] => {
+    return ['line', 'block', 'underline', 'line-thin', 'block-outline', 'underline-thin'].includes(value);
+};
+
+const validateUIState = (value: any): typeof appState.UI | null => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    
+    // Validate panel if it exists
+    if (value.panel && typeof value.panel === 'object') {
+        const panel = value.panel;
+        if (typeof panel.height !== 'number' || panel.height < 0 ||
+            typeof panel.width !== 'number' || panel.width < 0 ||
+            typeof panel.collapsed !== 'boolean' ||
+            !isValidLayoutType(panel.layout)) {
+            return null;
+        }
+    }
+    
+    // Validate top-level UI properties
+    if (value.shareCreated !== undefined && typeof value.shareCreated !== 'boolean') return null;
+    if (value.snippetId !== undefined && value.snippetId !== null && typeof value.snippetId !== 'string') return null;
+    
+    return value as typeof appState.UI;
+};
+
+const validateEditorState = (value: any): typeof appState.editor | null => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    
+    if (value.fileName !== undefined && typeof value.fileName !== 'string') return null;
+    if (value.code !== undefined && typeof value.code !== 'string') return null;
+    if (value.args !== undefined && !Array.isArray(value.args)) return null;
+    if (value.jsonArgs !== undefined && !Array.isArray(value.jsonArgs)) return null;
+    
+    return value as typeof appState.editor;
+};
+
+const validateMonacoSettings = (value: any): MonacoSettings | null => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    
+    if (value.fontFamily !== undefined && typeof value.fontFamily !== 'string') return null;
+    if (value.fontLigatures !== undefined && typeof value.fontLigatures !== 'boolean') return null;
+    if (value.cursorBlinking !== undefined && !isValidCursorBlinking(value.cursorBlinking)) return null;
+    if (value.cursorStyle !== undefined && !isValidCursorStyle(value.cursorStyle)) return null;
+    if (value.selectOnLineNumbers !== undefined && typeof value.selectOnLineNumbers !== 'boolean') return null;
+    if (value.minimap !== undefined && typeof value.minimap !== 'boolean') return null;
+    if (value.contextMenu !== undefined && typeof value.contextMenu !== 'boolean') return null;
+    if (value.smoothScrolling !== undefined && typeof value.smoothScrolling !== 'boolean') return null;
+    if (value.mouseWheelZoom !== undefined && typeof value.mouseWheelZoom !== 'boolean') return null;
+    
+    return value as MonacoSettings;
+};
+
+const validateSettings = (value: any): typeof appState.settings | null => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    
+    if (value.darkMode !== undefined && typeof value.darkMode !== 'boolean') return null;
+    if (value.useSystemTheme !== undefined && typeof value.useSystemTheme !== 'boolean') return null;
+    if (value.autoFormat !== undefined && typeof value.autoFormat !== 'boolean') return null;
+    if (value.runtime !== undefined && !isValidRuntimeType(value.runtime)) return null;
+    
+    return value as typeof appState.settings;
+};
+
 export const appState = {
     UI: {
         shareCreated: false,
@@ -69,37 +145,57 @@ on(appState, 'settings', c => saveState("settings", c));
 
 export const loadConfig = ()=> {
     console.log('[Config] Loading UI state...');
-    const ui = loadState("UI")
-    if (!!ui){
-        appState.UI = ui
-        console.log('[Config] UI state loaded');
+    const ui = loadState("UI");
+    if (ui) {
+        const validatedUI = validateUIState(ui);
+        if (validatedUI) {
+            appState.UI = validatedUI;
+            console.log('[Config] UI state loaded and validated');
+        } else {
+            console.warn('[Config] Invalid UI state found in localStorage, using defaults');
+        }
     } else {
         console.log('[Config] No UI state found in localStorage');
     }
 
     console.log('[Config] Loading editor state...');
-    const editor = loadState("editor")
-    if (!!editor) {
-        appState.editor = loadState("editor")
-        console.log('[Config] Editor state loaded');
+    const editor = loadState("editor");
+    if (editor) {
+        const validatedEditor = validateEditorState(editor);
+        if (validatedEditor) {
+            appState.editor = validatedEditor;
+            console.log('[Config] Editor state loaded and validated');
+        } else {
+            console.warn('[Config] Invalid editor state found in localStorage, using defaults');
+        }
     } else {
         console.log('[Config] No editor state found in localStorage');
     }
 
     console.log('[Config] Loading Monaco state...');
-    const monaco =  loadState("monaco")
-    if (!!monaco){
-        appState.monaco = monaco
-        console.log('[Config] Monaco state loaded');
+    const monaco = loadState("monaco");
+    if (monaco) {
+        const validatedMonaco = validateMonacoSettings(monaco);
+        if (validatedMonaco) {
+            appState.monaco = validatedMonaco;
+            console.log('[Config] Monaco state loaded and validated');
+        } else {
+            console.warn('[Config] Invalid Monaco state found in localStorage, using defaults');
+        }
     } else {
         console.log('[Config] No Monaco state found in localStorage');
     }
     
     console.log('[Config] Loading settings state...');
-    const settings =  loadState("settings")
-    if (!!settings){
-        appState.settings = settings
-        console.log('[Config] Settings state loaded');
+    const settings = loadState("settings");
+    if (settings) {
+        const validatedSettings = validateSettings(settings);
+        if (validatedSettings) {
+            appState.settings = validatedSettings;
+            console.log('[Config] Settings state loaded and validated');
+        } else {
+            console.warn('[Config] Invalid settings state found in localStorage, using defaults');
+        }
     } else {
         console.log('[Config] No settings state found in localStorage');
     }

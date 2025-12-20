@@ -65,7 +65,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "eslint": "^8.8.0",
-    "eslint-config-next": "16.1.0",
+    "eslint-config-next": "^14.2.35",
     "eslint-config-react-app": "^7.0.0",
     "eslint-plugin-flowtype": "^8.0.3",
     "eslint-plugin-import": "^2.25.3",

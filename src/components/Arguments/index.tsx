@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
-import {ArgumentsProps} from 'components/Arguments/types';
-import {ArgumentsList} from './ArgumentsList';
+import {ArgumentsProps} from './types';
+import SingleArgument from './SingleArgument';
 import {CadenceCheckerContext} from "@components/editor/Cadence/CadenceChecker";
 import {ExecuteCommandRequest} from 'monaco-languageclient';
 import {CadenceCheckCompleted} from "@components/editor/Cadence/language-server";
@@ -8,143 +8,116 @@ import {useTheme} from "@fluentui/react";
 import {getContentStyles} from "~/styles/modal";
 import PanelHeader from "@components/core/Panel/PanelHeader";
 import {VscChevronDown, VscChevronUp} from "react-icons/vsc";
-import {DragBox, DragMe} from "@components/Arguments/styles";
+import {DragBox, DragMe} from "./styles";
 import {use} from "use-minimal-state";
 import {appState} from "~/state";
 
-const isDictionary = (type: string) => type.includes("{")
-const isArray = (type: string) => type.includes("[")
-const isImportedType = (type: string) => type.includes(".")
-const isComplexType = (type: string) => isDictionary(type)
-    || isArray(type)
-    || isImportedType(type)
+const isDictionary = (type: string) => type.includes("{");
+const isArray = (type: string) => type.includes("[");
+const isImportedType = (type: string) => type.includes(".");
+const isComplexType = (type: string) => isDictionary(type) || isArray(type) || isImportedType(type);
 
 const startsWith = (value: string, prefix: string) => {
-    return value.startsWith(prefix) || value.startsWith("U" + prefix)
+    return value.startsWith(prefix) || value.startsWith("U" + prefix);
 }
 
-const checkJSON = (value: any, type: string) => {
+const checkJSON = (value: string, type: string) => {
     try {
-        JSON.parse(value)
-        return null
+        JSON.parse(value);
+        return null;
     } catch (e) {
-        return `Not a valid argument of type ${type}`
+        return `Not a valid argument of type ${type}`;
     }
 }
 
-const validateByType = (
-    value: any,
-    type: string,
-) => {
+const validateByType = (value: string, type: string): string | null => {
     if (value.length === 0) {
         return "Value can't be empty";
     }
 
     switch (true) {
-        // Strings
-        case type === 'String': {
-            return null; // no need to validate String for now
-        }
+        case type === 'String':
+            return null;
 
-        // Integers
-        case startsWith(type, 'Int'): {
-            if (isNaN(value) || value === '') {
-                return 'Should be a valid Integer number';
+        case startsWith(type, 'Int'):
+        case startsWith(type, 'Word'):
+        case startsWith(type, 'Fix'):
+            if (isNaN(Number(value)) || value === '') {
+                return `Should be a valid ${type} number`;
             }
             return null;
-        }
 
-        // Words
-        case startsWith(type, 'Word'): {
-            if (isNaN(value) || value === '') {
-                return 'Should be a valid Word number';
-            }
-            return null;
-        }
-
-        // Fixed Point
-        case startsWith(type, 'Fix'): {
-            if (isNaN(value) || value === '') {
-                return 'Should be a valid fixed point number';
-            }
-            return null;
-        }
-
-        case isComplexType(type): {
-            // This case it to catch complex arguments like Dictionaries
+        case isComplexType(type):
             return checkJSON(value, type);
-        }
 
-        // Address
-        case type === 'Address': {
+        case type === 'Address':
             if (!value.match(/(^0x[\w\d]{16})|(^0x[\w\d]{1,4})/)) {
                 return 'Not a valid Address';
             }
             return null;
-        }
 
-        // Booleans
-        case type === 'Bool': {
+        case type === 'Bool':
             if (value !== 'true' && value !== 'false') {
                 return 'Boolean values can be either true or false';
             }
             return null;
-        }
 
-        default: {
+        default:
             return null;
-        }
     }
 };
 
-
 interface IValue {
+    [key: string]: string;
+}
+
+interface IErrors {
     [key: string]: string;
 }
 
 
 const Arguments: React.FC<ArgumentsProps> = (props) => {
     const {editor} = props;
-    const clientOnNotification = useRef(null);
+    const clientOnNotification = useRef<any>(null);
     const {languageClient} = useContext(CadenceCheckerContext);
     const [executionArguments, setExecutionArguments] = useState<any>({});
+    const [errors, setErrors] = useState<IErrors>({});
+    const [values, setValue] = useState<IValue>({});
+    const [collapsed, setCollapsed] = useState<boolean>(false);
+    const constraintsRef = useRef(null);
+
     const theme = useTheme();
     const contentStyles = getContentStyles(theme);
-    const [errors, setErrors] = useState({})
-    const [values, setValue] = useState<IValue>({});
+    const editorState = use(appState, "editor");
 
-    const editorState= use(appState, "editor")
-
-    const parseParameters = async (): Promise<[any?]> => {
+    const parseParameters = async (): Promise<string[]> => {
         if (!languageClient) {
-            return []
+            return [];
         }
+
         const fixed = list.map((arg: any) => {
             const {name, type} = arg;
             let value = values[name];
 
-            if (type === `String`) {
+            if (type === 'String') {
                 if (value == null) {
-                    value = ""
+                    value = "";
                 }
                 value = `${value}`;
             }
 
-            // We probably better fix this on server side...
             if (type === 'UFix64') {
                 if (value && value.indexOf('.') < 0) {
                     value = `${value}.0`;
                 }
             }
 
-            // Language server throws "input is not literal" without quotes
-            if (type === `String`) {
+            if (type === 'String') {
                 value = `"${value.replace(/"/g, '\\"')}"`;
             }
 
             return value;
         });
-
 
         let formatted: any;
         try {
@@ -153,16 +126,12 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
                 arguments: [editor?.getModel()?.uri.toString(), fixed],
             });
         } catch (e) {
-            return []
+            return [];
         }
 
-        // Map values to strings that will be passed to backend
-        return list.map((_: any, index: number) =>
-            JSON.stringify(formatted[index]),
-        );
-
+        return list.map((_: any, index: number) => JSON.stringify(formatted[index]));
     }
-    const getParameters = async (): Promise<[any?]> => {
+    const getParameters = async (): Promise<any[]> => {
         if (!languageClient) {
             return [];
         }
@@ -181,71 +150,47 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
             return [];
         }
     };
-    const setupLanguageClientListener = () => {
-        if (clientOnNotification.current) {
-            //dispose
-        }
 
+    const setupLanguageClientListener = () => {
         clientOnNotification.current = languageClient.onNotification(
             CadenceCheckCompleted.methodName,
             async (result: CadenceCheckCompleted.Params) => {
-                if (result.valid) {
-                    const params = await getParameters();
-                    // Update state
-                    console.log("update params", params)
-                    setExecutionArguments({
-                        ...executionArguments,
-                        params: params,
-                    });
-                }
-                else{
-                    setExecutionArguments({
-                        ...executionArguments,
-                        params: [],
-                    });
-                }
+                const params = result.valid ? await getParameters() : [];
+                setExecutionArguments({
+                    ...executionArguments,
+                    params,
+                });
             },
         );
     };
 
-    const getArguments = (): any => {
-        return executionArguments.params || [];
-    };
-
-    const list = useMemo(getArguments, [executionArguments]);
-    const [collapsed, setCollapsed] = useState<boolean>(false)
+    const list = useMemo(() => executionArguments.params || [], [executionArguments]);
 
     useEffect(() => {
         if (languageClient) {
-            console.log("set listener")
             setupLanguageClientListener();
         }
     }, [languageClient]);
 
-    useEffect(() => {
-        //onArgsChange(executionArguments)
-    }, [executionArguments])
-    const constraintsRef = useRef(null)
 
-
-    const validate = (list: any, values: any) => {
-        const errors = list.reduce((acc: any, item: any) => {
+    const validate = (list: any[], values: IValue) => {
+        const newErrors = list.reduce((acc: IErrors, item: any) => {
             const {name, type} = item;
             const value = values[name];
+
             if (value) {
                 const error = validateByType(value, type);
                 if (error) {
                     acc[name] = error;
                 }
-            } else {
-                if (type !== 'String') {
-                    acc[name] = "Value can't be empty";
-                }
+            } else if (type !== 'String') {
+                acc[name] = "Value can't be empty";
             }
+
             return acc;
         }, {});
 
-        setErrors(errors);
+        setErrors(newErrors);
     };
 
     useEffect(() => {
@@ -255,26 +200,23 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
     }, [list, values]);
 
     useEffect(() => {
-        if (Object.keys(errors).length === 0) return
-        parseParameters().then((result) => {
-            editorState.jsonArgs = result
+        if (Object.keys(errors).length === 0) {
+            parseParameters().then((result) => {
+                editorState.jsonArgs = result;
+            });
+        }
+    }, [errors, values, editorState]);
 
-        })
-    }, [errors, values, editorState])
-
-
-    if (!list) return null
-    if (list.length === 0) return null
-
+    if (!list || list.length === 0) {
+        return null;
+    }
 
     return (
         <>
-        <DragBox ref={constraintsRef}/>
-
-        <DragMe>
+            <DragBox ref={constraintsRef} />
+            <DragMe>
                 <div
                     className={contentStyles.container}
-
                     style={{
                         minWidth: 250,
                         border: `2px solid ${theme?.palette.neutralQuaternaryAlt}`,
@@ -287,31 +229,31 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
                         commands={{
                             'collapse': {
                                 hidden: false,
-                                icon: !collapsed ? <VscChevronUp/> : <VscChevronDown/>,
+                                icon: !collapsed ? <VscChevronUp /> : <VscChevronDown />,
                                 label: collapsed ? 'Expand' : 'Collapse',
                                 onClick: () => setCollapsed(!collapsed)
                             },
                         }}
                     />
 
-                    {!collapsed &&
-                        <ArgumentsList
-                            list={list}
-                            errors={errors}
-                            onChange={(name, value) => {
-                                let key = name.toString();
-                                let newValue = {...values, [key]: value};
-                                setValue(newValue);
-                            }}
-                        />
-                    }
-
+                    {!collapsed && (
+                        <div className={contentStyles.body}>
+                            {list.map((argument: any) => (
+                                <SingleArgument
+                                    key={argument.name}
+                                    argument={argument}
+                                    error={errors[argument.name]}
+                                    onChange={(name, value) => {
+                                        setValue({...values, [name]: value});
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
-
-        </DragMe>
-    </>
-    )
-
+            </DragMe>
+        </>
+    );
 }
 
 export default Arguments;

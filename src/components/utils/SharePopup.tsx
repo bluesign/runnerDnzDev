@@ -18,7 +18,7 @@ interface Props {
 }
 
 const SharePopup: FC<Props> = ({ visible, snippetId, originUrl = typeof window !== 'undefined' ? window?.location?.origin : '', onDismiss, target }) => {
-  const { semanticColors: { bodyBackground } } = useTheme();
+  const { palette } = useTheme();
   const primaryButtonProps: IButtonProps = useMemo(
     () => ({
       children: 'Copy link',
@@ -50,15 +50,12 @@ const SharePopup: FC<Props> = ({ visible, snippetId, originUrl = typeof window !
         href={`${originUrl}/snippet/${snippetId}`}
         target="_blank"
         underline
-        styles={{
-          root: [
-            {
-              color: bodyBackground
-            }
-          ]
-        }}
       >
+      <span 
+
+        className="font-semibold text-white">
         {`${originUrl}/snippet/${snippetId}`}
+        </span>
       </Link>
     </TeachingBubble>
   );

@@ -1,7 +1,6 @@
 import React from "react";
 import {Argument} from "./types";
 import {TextField} from "@fluentui/react";
-import {InputBlock, Error} from "./styles";
 
 type SingleArgumentProps = {
     argument: Argument;
@@ -13,7 +12,7 @@ const SingleArgument: React.FC<SingleArgumentProps> = ({argument, error, onChang
     const {name, type} = argument;
 
     return (
-        <InputBlock>
+        <div className="flex flex-col relative">
             <TextField
                 label={`${name} : (${type})`}
                 name={`${name}-${type}`}
@@ -22,8 +21,8 @@ const SingleArgument: React.FC<SingleArgumentProps> = ({argument, error, onChang
                     onChange(name, value);
                 }}
             />
-            {error && <Error>{error}</Error>}
-        </InputBlock>
+            {error && <p className="inline text-xs text-red-600 mt-1">{error}</p>}
+        </div>
     );
 }
 

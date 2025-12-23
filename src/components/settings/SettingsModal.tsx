@@ -27,10 +27,6 @@ const NETWORK_OPTIONS: IDropdownOption[] = [
         text: 'Flow Testnet'
     },
     {
-        key: RuntimeType.FlowPreviewnet,
-        text: 'Flow Previewnet'
-    },
-    {
         key: RuntimeType.FlowEmulator,
         text: 'Local Emulator',
         disabled: false // disable on not detect

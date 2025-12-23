@@ -23,12 +23,6 @@ const options = [
     icon: <VscBeaker />
   },
   {
-    label: 'Flow Previewnet',
-    description: 'Run scripts and transactions on Flow Previewnet.',
-    type: RuntimeType.FlowPreviewnet,
-    icon: <VscBeaker />
-  },
-  {
     label: 'Local Emulator',
     description: 'Run scripts and transactions on the local Flow Emulator.',
     type: RuntimeType.FlowEmulator,
@@ -78,15 +72,11 @@ const EnvironmentSelectModal: React.FC<Props> = ({
             options.map(({label, description, type, icon}) => (
               <CompoundButton
                 key={type}
+                onRenderIcon={() => <span className="text-[#007fd4] mr-3 text-2xl">{icon}</span>}
                 secondaryText={description}
                 checked={type === value}
                 className={buttonStyles.button}
                 onClick={() => onClose?.(type)}
-                onRenderIcon={() => (
-                  <div className="EnvironmentSelectButton__icon">
-                    {icon}
-                  </div>
-                )}
               >
                 {label}
               </CompoundButton>

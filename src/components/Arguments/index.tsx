@@ -8,8 +8,7 @@ import {useTheme} from "@fluentui/react";
 import {getContentStyles} from "~/styles/modal";
 import PanelHeader from "@components/core/Panel/PanelHeader";
 import {VscChevronDown, VscChevronUp} from "react-icons/vsc";
-import {DragBox, DragMe} from "./styles";
-import {use} from "use-minimal-state";
+import {use, update} from "use-minimal-state";
 import {appState} from "~/state";
 
 const isDictionary = (type: string) => type.includes("{");
@@ -160,6 +159,12 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
                     ...executionArguments,
                     params,
                 });
+
+                // Update language server status back to ready after checking
+                if (appState.status.languageServerStatus === "checking") {
+                    appState.status.languageServerStatus = "ready";
+                    update(appState, "status");
+                }
             },
         );
     };
@@ -195,16 +200,25 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
 
     useEffect(() => {
         if (list.length) {
-            validate(list, values)
+            validate(list, values);
+        } else {
+            // No arguments, no errors
+            editorState.hasArgumentErrors = false;
+            update(appState, "editor");
         }
     }, [list, values]);
 
     useEffect(() => {
-        if (Object.keys(errors).length === 0) {
+        const hasErrors = Object.keys(errors).length > 0;
+        editorState.hasArgumentErrors = hasErrors;
+
+        if (!hasErrors) {
             parseParameters().then((result) => {
                 editorState.jsonArgs = result;
             });
         }
+
+        update(appState, "editor");
     }, [errors, values, editorState]);
 
     if (!list || list.length === 0) {
@@ -213,15 +227,19 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
 
     return (
         <>
-            <DragBox ref={constraintsRef} />
-            <DragMe>
+            <div ref={constraintsRef} className="absolute w-full h-full top-0 right-0 -z-10" />
+            <div className="absolute right-5 top-0 max-w-[calc(100%-40px)] max-h-full z-[1000]">
                 <div
                     className={contentStyles.container}
                     style={{
                         minWidth: 250,
+                        maxWidth: '100%',
+                        maxHeight: '100%',
                         border: `2px solid ${theme?.palette.neutralQuaternaryAlt}`,
                         backgroundColor: theme?.palette.neutralLighter,
-                        zIndex: -1
+                        zIndex: -1,
+                        display: 'flex',
+                        flexDirection: 'column'
                     }}
                 >
                     <PanelHeader
@@ -237,7 +255,7 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
                     />
 
                     {!collapsed && (
-                        <div className={contentStyles.body}>
+                        <div className={contentStyles.body} style={{overflowY: 'auto', flex: 1}}>
                             {list.map((argument: any) => (
                                 <SingleArgument
                                     key={argument.name}
@@ -251,7 +269,7 @@ const Arguments: React.FC<ArgumentsProps> = (props) => {
                         </div>
                     )}
                 </div>
-            </DragMe>
+            </div>
         </>
     );
 }

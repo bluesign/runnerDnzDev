@@ -16,25 +16,25 @@ const PanelHeader: React.FC<Props> = ({label, commands}) => {
 
     return (
         <div
-            className="PanelHeader"
+            className="p-2 flex flex-row items-center justify-between"
             style={{
                 backgroundColor: neutralLight,
                 color: neutralDark,
                 '--pg-panel-action-hover-bg': neutralQuaternaryAlt
             } as any}
         >
-            <div className="PanelHeader__side--left">
-        <span className="PanelHeader__title">
-            <b>{label}</b>
-        </span>
+            <div className="flex items-center">
+                <span className="uppercase text-[11px] px-[7px]">
+                    <b>{label}</b>
+                </span>
             </div>
-            <ul className="PanelHeader__commands">
+            <ul className="flex flex-row list-none m-0 p-0">
                 {commands ? (
                     Object.entries(commands)
                         .map(([key, props]) => ({key, ...props}))
                         .filter(({hidden}) => !hidden)
                         .map(({key, ...props}) => (
-                            <li key={key}>
+                            <li key={key} className="m-0 p-0">
                                 <PanelAction {...props} />
                             </li>
                         ))

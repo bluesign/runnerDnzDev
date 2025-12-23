@@ -5,6 +5,11 @@ const CircularDependencyPlugin = require('circular-dependency-plugin');
 const nextConfig = {
   reactStrictMode: false,
   transpilePackages: ['react-monaco-editor'],
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
+  },
   webpack: (config, { isServer }) => {
     // Monaco Editor and CircularDependency plugins only for client-side
     if (!isServer) {

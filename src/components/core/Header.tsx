@@ -93,18 +93,31 @@ export const Header: React.FC<Props> = ({embed}) => {
     }
 
     const menuItems = (): ICommandBarItemProps[] => {
+        const isRunDisabled = status.loading || editor.hasArgumentErrors;
+
         if (embed!=="") return [
 
             {
                 key: 'run',
                 text: 'Run',
                 ariaLabel: 'Run program (Ctrl+Enter)',
-                title: 'Run program (Ctrl+Enter)',
+                title: editor.hasArgumentErrors
+                    ? 'Fix argument errors before running'
+                    : 'Run program (Ctrl+Enter)',
                 iconProps: {iconName: 'Play'},
-                disabled: status.loading,
+                disabled: isRunDisabled,
                 onClick: () => {
                     runFileAction()
                 }
+            },
+            {
+                key: 'debug',
+                text: 'Debug',
+                ariaLabel: 'Debug program',
+                title: 'Coming soon',
+                iconProps: {iconName: 'BugSolid'},
+                disabled: true,
+                onClick: () => {}
             },
 
             {
@@ -133,12 +146,23 @@ export const Header: React.FC<Props> = ({embed}) => {
                 key: 'run',
                 text: 'Run',
                 ariaLabel: 'Run program (Ctrl+Enter)',
-                title: 'Run program (Ctrl+Enter)',
+                title: editor.hasArgumentErrors
+                    ? 'Fix argument errors before running'
+                    : 'Run program (Ctrl+Enter)',
                 iconProps: {iconName: 'Play'},
-                disabled: status.loading,
+                disabled: isRunDisabled,
                 onClick: () => {
                     runFileAction()
                 }
+            },
+            {
+                key: 'debug',
+                text: 'Debug',
+                ariaLabel: 'Debug program',
+                title: 'Coming soon',
+                iconProps: {iconName: 'BugSolid'},
+                disabled: true,
+                onClick: () => {}
             },
             {
                 key: 'share',
@@ -223,18 +247,17 @@ export const Header: React.FC<Props> = ({embed}) => {
     }
     return (
         <header
-            className='header'
+            className="relative flex flex-row justify-between items-center min-h-[44px]"
             style={{backgroundColor: theme?.palette?.white}}
         >
             <img
-                style={{marginLeft: 20}}
                 src='/flow.svg'
-                className='header__logo'
+                className="h-6 ml-5 max-sm:h-4 max-sm:mx-2.5 max-sm:hidden"
                 alt='Flow Logo'
             />
 
             <CommandBar
-                className='header__commandBar'
+                className="flex-1"
                 items={menuItems()}
                 farItems={asideItems().filter(({hidden}) => !hidden)}
                 ariaLabel='CodeEditor menu'

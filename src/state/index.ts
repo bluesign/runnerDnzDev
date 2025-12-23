@@ -123,14 +123,16 @@ export const appState = {
     editor: {
         fileName:  "script.cdc",
         code: "",
-        args: [] as [any?],
-        jsonArgs: [] as [any?],
+        args: [] as any[],
+        jsonArgs: [] as string[],
+        hasArgumentErrors: false,
     },
     status: {
         loading: false,
         lastError: "",
         events: [] as  EvalEvent[],
         markers: [] as editor.IMarker[],
+        languageServerStatus: "initializing" as "initializing" | "ready" | "checking" | "error",
     },
     monaco:  defaultMonacoSettings,
     settings: {

@@ -16,7 +16,12 @@ const PanelAction: React.FC<PanelActionProps> = ({hidden, icon, desktopOnly, lab
 
     return (
         <button
-            className={clsx('PanelAction', desktopOnly && 'PanelAction--desktopOnly')}
+            className={clsx(
+                'bg-transparent font-inherit text-inherit border-none cursor-pointer',
+                'flex items-center p-[3px] rounded-[5px] mr-1',
+                'hover:bg-[var(--pg-panel-action-hover-bg)]',
+                desktopOnly && 'max-[480px]:hidden'
+            )}
             title={label}
             onClick={onClick}
         >

@@ -12,6 +12,9 @@ let monacoServicesInstalled = false;
 
 async function startLanguageServer(newCadence, callbacks, getCode, options) {
   console.log('[useLanguageServer] Starting language server...');
+  appState.status.languageServerStatus = "initializing";
+  update(appState, "status");
+
   const { setLanguageServer, setCallbacks } = options;
   const server = await CadenceLanguageServer.create(newCadence, callbacks);
   console.log('[useLanguageServer] Language server created, waiting for it to be ready...');
@@ -25,6 +28,8 @@ async function startLanguageServer(newCadence, callbacks, getCode, options) {
         callbacks.getAddressCode = getCode;
         setCallbacks(callbacks);
         setLanguageServer(server);
+        appState.status.languageServerStatus = "ready";
+        update(appState, "status");
         console.log("%c LS: Is Up!", "color: #00FF00");
       }
     }, 100);

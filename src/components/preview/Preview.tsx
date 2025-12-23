@@ -29,7 +29,7 @@ const Preview: React.FC<PreviewProps> = ()=>{
   if (status.lastError) {
     content = (
         <MessageBar messageBarType={MessageBarType.error} isMultiline={true}>
-          <b className='app-preview__label'>Error</b>
+          <b className="block mb-0.5">Error</b>
           <pre className='code'>
             {status.lastError}
           </pre>
@@ -46,11 +46,11 @@ const Preview: React.FC<PreviewProps> = ()=>{
     ));
 
   } else {
-    content = <span>Press "Run" to execute script.</span>;
+    content = <span>Press &quot;Run&quot; to execute script.</span>;
   }
 
-  return <div className="app-preview" style={styles}>
-    <div className='app-preview__content'>
+  return <div className="box-border overflow-auto flex-1" style={styles}>
+    <div className="px-[15px] pb-[15px] text-[10pt]">
       {content}
     </div>
   </div>;

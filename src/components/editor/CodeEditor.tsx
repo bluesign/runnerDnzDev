@@ -81,6 +81,11 @@ export const CodeEditor: React.FC<PreviewProps> = ()=>{
   const onChange = (newValue: string, _: editor.IModelContentChangedEvent)=>{
     editorState.code=newValue
     update(appState, "editor")
+
+    // Set language server status to checking
+    status.languageServerStatus = "checking"
+    update(appState, "status")
+
     doAnalyze()
   }
 

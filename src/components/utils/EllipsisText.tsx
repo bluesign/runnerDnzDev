@@ -5,7 +5,7 @@ interface Props {
 }
 
 const EllipsisText: React.FC<Props> = ({children, ...props}) => (
-  <span className="EllipsisText" {...props}>
+  <span className="ellipsis-text" {...props}>
     {children}
   </span>
 );

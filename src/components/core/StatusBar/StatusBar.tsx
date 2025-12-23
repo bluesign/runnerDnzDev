@@ -8,6 +8,7 @@ import * as fcl from "@onflow/fcl";
 import {set, update, use} from "use-minimal-state";
 import {appState} from "~/state";
 import {init} from "@onflow/fcl-wc";
+import clsx from 'clsx';
 
 
 const pluralize = (count: number, label: string) => (
@@ -75,7 +76,7 @@ const StatusBar: React.FC = () => {
   const status = use(appState, "status")
 
   const {warnings, errors} = getMarkerCounters(status.markers);
-  const className = status.loading ? 'StatusBar StatusBar--busy' : 'StatusBar';
+  const bgColor = status.loading ? 'bg-[#cc6633]' : 'bg-[#007fd4]';
   const [client, setClient] = useState(null);
   const [lastNetwork, setLastNetwork] = useState("unknown");
 
@@ -119,27 +120,58 @@ const StatusBar: React.FC = () => {
 
 
 
+  const getLanguageServerStatusItem = () => {
+    const lsStatus = status.languageServerStatus;
+
+    if (lsStatus === "initializing") {
+      return (
+        <StatusBarItem icon="Sync">
+          <EllipsisText>Language Server Starting</EllipsisText>
+        </StatusBarItem>
+      );
+    }
+
+    if (lsStatus === "checking") {
+      return (
+        <StatusBarItem icon="Sync">
+          <EllipsisText>Checking</EllipsisText>
+        </StatusBarItem>
+      );
+    }
+
+    if (lsStatus === "ready") {
+      return (
+        <StatusBarItem icon="Pass" title="Language Server Ready">
+          Ready
+        </StatusBarItem>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <>
-      <div className={className}>
-        <div className="StatusBar__side-left">
+      <div className={clsx('flex flex-row text-white px-[7px] justify-between h-[22px]', bgColor)}>
+        <div className="flex flex-row">
           <StatusBarItem
             icon="ErrorBadge"
             button
           >
             {pluralize(errors, 'Error')}
           </StatusBarItem>
-          { warnings > 0 ? (
+          {warnings > 0 ? (
             <StatusBarItem
               icon="Warning"
               button
             >
               {pluralize(warnings, 'Warning')}
             </StatusBarItem>
-          ) : null }
+          ) : null}
           {getStatusItem({loading:status.loading, lastError:status.lastError})}
+          {getLanguageServerStatusItem()}
         </div>
-        <div className="StatusBar__side-right">
+        <div className="flex flex-row">
           <StatusBarItem
             icon="Code"
             title="Select environment"

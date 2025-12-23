@@ -75,13 +75,11 @@ const ResizablePreview: React.FC = () => {
   console.log(size)
   return (
     <Resizable
-      className={
-        clsx(
-          'ResizablePreview',
-          isCollapsed && 'ResizablePreview--collapsed',
-          `ResizablePreview--${UI.panel.layout}`
-        )
-      }
+      className={clsx(
+        'flex flex-col ResizablePreview',
+        isCollapsed && 'ResizablePreview--collapsed',
+        `ResizablePreview--${UI.panel.layout}`
+      )}
       handleClasses={handleClasses}
       size={size}
       enable={enabledCorners}

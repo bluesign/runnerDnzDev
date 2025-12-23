@@ -83,11 +83,6 @@ export const Playground : React.FC = () => {
             console.log('[Playground] Network: testnet');
         }
 
-        if (params.get("network")==="previewnet"){
-            settings.runtime = RuntimeType.FlowPreviewnet
-            console.log('[Playground] Network: previewnet');
-        }
-
         if (params.get("network")==="emulator"){
             settings.runtime = RuntimeType.FlowEmulator
             console.log('[Playground] Network: emulator');
@@ -164,14 +159,14 @@ export const Playground : React.FC = () => {
     }, [settings.darkMode, settings.useSystemTheme])
 
     return (
-        <ThemeProvider className="App" theme={theme!}>
+        <ThemeProvider className="flex flex-col" theme={theme!}>
 
-            <div className="Playground">
+            <div className="absolute inset-0 h-full w-full flex flex-col">
                 <Header embed={ embed }/>
-                 <div className={`Layout Layout--${UI.panel.layout}`}>
+                 <div className={`flex flex-1 overflow-hidden ${UI.panel.layout === LayoutType.Vertical ? 'flex-col' : 'flex-row'}`}>
 
                     <FlexContainer>
-                        <CadenceChecker newCadence={settings.runtime === RuntimeType.FlowPreviewnet || settings.runtime === RuntimeType.FlowTestnet || settings.runtime === RuntimeType.FlowEmulator  }>
+                        <CadenceChecker newCadence={settings.runtime === RuntimeType.FlowTestnet || settings.runtime === RuntimeType.FlowEmulator}>
                             <CodeEditor/>
                         </CadenceChecker>
                     </FlexContainer>
